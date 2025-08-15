@@ -1,0 +1,429 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(210, 25%, 7.8431%);
+  --card: hsl(180, 6.6667%, 97.0588%);
+  --card-foreground: hsl(210, 25%, 7.8431%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(210, 25%, 7.8431%);
+  --primary: hsl(212, 84%, 38%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(212, 100%, 61%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --muted: hsl(240, 1.9608%, 90%);
+  --muted-foreground: hsl(210, 25%, 7.8431%);
+  --accent: hsl(0, 84%, 60%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(201.4286, 30.4348%, 90.9804%);
+  --input: hsl(200, 23.0769%, 97.4510%);
+  --ring: hsl(212, 84%, 38%);
+  --chart-1: hsl(212, 84%, 38%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --sidebar: hsl(180, 6.6667%, 97.0588%);
+  --sidebar-foreground: hsl(210, 25%, 7.8431%);
+  --sidebar-primary: hsl(212, 84%, 38%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(211.5789, 51.3514%, 92.7451%);
+  --sidebar-accent-foreground: hsl(212, 84%, 38%);
+  --sidebar-border: hsl(205.0000, 25.0000%, 90.5882%);
+  --sidebar-ring: hsl(212, 84%, 38%);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 1px 2px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 1px 2px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 2px 4px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 4px 6px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 8px 10px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Turkish e-commerce specific colors */
+  --kampus-primary: hsl(212, 84%, 38%);
+  --kampus-secondary: hsl(212, 100%, 61%);
+  --kampus-accent: hsl(0, 84%, 60%);
+  --kampus-success: hsl(142, 71%, 45%);
+  --kampus-warning: hsl(45, 93%, 47%);
+  --kampus-gray-50: hsl(210, 40%, 98%);
+  --kampus-gray-100: hsl(210, 40%, 96%);
+  --kampus-gray-200: hsl(214, 32%, 91%);
+  --kampus-gray-300: hsl(213, 27%, 84%);
+  --kampus-gray-400: hsl(215, 20%, 65%);
+  --kampus-gray-500: hsl(215, 16%, 47%);
+  --kampus-gray-600: hsl(215, 19%, 35%);
+  --kampus-gray-700: hsl(215, 25%, 27%);
+  --kampus-gray-800: hsl(217, 33%, 17%);
+  --kampus-gray-900: hsl(222, 84%, 5%);
+}
+
+.dark {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(200, 6.6667%, 91.1765%);
+  --card: hsl(228, 9.8039%, 10%);
+  --card-foreground: hsl(0, 0%, 85.0980%);
+  --popover: hsl(0, 0%, 0%);
+  --popover-foreground: hsl(200, 6.6667%, 91.1765%);
+  --primary: hsl(212, 84%, 38%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(195.0000, 15.3846%, 94.9020%);
+  --secondary-foreground: hsl(210, 25%, 7.8431%);
+  --muted: hsl(0, 0%, 9.4118%);
+  --muted-foreground: hsl(210, 3.3898%, 46.2745%);
+  --accent: hsl(205.7143, 70%, 7.8431%);
+  --accent-foreground: hsl(212, 84%, 38%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(210, 5.2632%, 14.9020%);
+  --input: hsl(207.6923, 27.6596%, 18.4314%);
+  --ring: hsl(212, 84%, 38%);
+  --chart-1: hsl(212, 84%, 38%);
+  --chart-2: hsl(159.7826, 100%, 36.0784%);
+  --chart-3: hsl(42.0290, 92.8251%, 56.2745%);
+  --chart-4: hsl(147.1429, 78.5047%, 41.9608%);
+  --chart-5: hsl(341.4894, 75.2000%, 50.9804%);
+  --sidebar: hsl(228, 9.8039%, 10%);
+  --sidebar-foreground: hsl(0, 0%, 85.0980%);
+  --sidebar-primary: hsl(212, 84%, 38%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
+  --sidebar-accent: hsl(205.7143, 70%, 7.8431%);
+  --sidebar-accent-foreground: hsl(212, 84%, 38%);
+  --sidebar-border: hsl(205.7143, 15.7895%, 26.0784%);
+  --sidebar-ring: hsl(212, 84%, 38%);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00);
+  --shadow-xs: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00);
+  --shadow-sm: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 1px 2px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 1px 2px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-md: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 2px 4px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-lg: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 4px 6px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-xl: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00), 0px 8px 10px -1px hsl(212, 84%, 38% / 0.00);
+  --shadow-2xl: 0px 2px 0px 0px hsl(212, 84%, 38% / 0.00);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Turkish number formatting */
+  .turkish-price {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Kampüs Sepeti specific button styles */
+  .btn-kampus-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 border-primary;
+  }
+
+  .btn-kampus-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90 border-secondary;
+  }
+
+  .btn-kampus-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90 border-accent;
+  }
+
+  /* Product card hover effects */
+  .product-card {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin;
+  }
+
+  /* Turkish text optimizations */
+  .turkish-text {
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Header styles */
+  .header-promo {
+    @apply bg-primary text-primary-foreground py-2 text-sm font-medium text-center;
+  }
+
+  .header-main {
+    @apply bg-background shadow-md border-b-2 border-primary sticky top-0 z-50;
+  }
+
+  .logo {
+    @apply bg-primary text-primary-foreground px-4 py-2 rounded-lg font-bold text-xl;
+  }
+
+  /* Search bar */
+  .search-input {
+    @apply w-full px-4 py-3 pr-12 rounded-lg border border-input focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none bg-background;
+  }
+
+  .search-button {
+    @apply absolute right-0 top-0 h-full px-4 bg-primary text-primary-foreground rounded-r-lg hover:bg-primary/90 transition-colors;
+  }
+
+  /* Sidebar styles */
+  .sidebar {
+    @apply w-64 bg-card rounded-lg shadow-md p-6 h-fit sticky top-24;
+  }
+
+  .sidebar-title {
+    @apply font-bold text-lg text-foreground mb-4 border-b border-border pb-2;
+  }
+
+  .category-button {
+    @apply block w-full text-left px-3 py-2 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .category-button.active {
+    @apply text-primary bg-accent text-accent-foreground font-medium;
+  }
+
+  /* Product grid */
+  .product-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  /* Product card */
+  .product-card-base {
+    @apply bg-card rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-200;
+  }
+
+  .product-image {
+    @apply w-full h-48 object-cover;
+  }
+
+  .discount-badge {
+    @apply absolute top-2 left-2 bg-accent text-accent-foreground px-2 py-1 rounded-md text-sm font-bold;
+  }
+
+  .coaching-badge {
+    @apply absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium;
+  }
+
+  .price-display {
+    @apply text-xl font-bold text-primary turkish-price;
+  }
+
+  .original-price {
+    @apply text-muted-foreground line-through text-sm turkish-price;
+  }
+
+  /* Cart styles */
+  .cart-modal {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50;
+  }
+
+  .cart-sidebar {
+    @apply absolute right-0 top-0 h-full w-96 bg-card shadow-xl;
+  }
+
+  /* Admin panel styles */
+  .admin-header {
+    @apply bg-card shadow-md border-b-2 border-accent;
+  }
+
+  .admin-promo {
+    @apply bg-accent text-accent-foreground py-2 text-center text-sm font-medium;
+  }
+
+  .admin-logo {
+    @apply bg-accent text-accent-foreground px-4 py-2 rounded-lg font-bold text-xl;
+  }
+
+  /* Form styles */
+  .form-input {
+    @apply w-full px-3 py-2 border border-input rounded-md focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none bg-background;
+  }
+
+  .form-select {
+    @apply w-full px-3 py-2 border border-input rounded-md focus:border-primary outline-none bg-background;
+  }
+
+  .form-textarea {
+    @apply w-full px-3 py-2 border border-input rounded-md focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 outline-none bg-background resize-vertical;
+  }
+
+  /* Table styles */
+  .admin-table {
+    @apply w-full border-collapse bg-card;
+  }
+
+  .admin-table th {
+    @apply text-left py-3 px-4 bg-muted font-medium text-muted-foreground border-b border-border;
+  }
+
+  .admin-table td {
+    @apply py-3 px-4 border-b border-border;
+  }
+
+  .admin-table tr:hover {
+    @apply bg-muted/50;
+  }
+
+  /* Footer styles */
+  .footer {
+    @apply bg-gray-800 text-white mt-12;
+  }
+
+  .footer-content {
+    @apply container mx-auto px-4 py-8;
+  }
+
+  .footer-logo {
+    @apply bg-primary text-primary-foreground px-3 py-1 rounded font-bold;
+  }
+
+  /* Turkish specific utilities */
+  .turkish-currency::after {
+    content: " TL";
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-scale-up {
+    animation: scaleUp 0.2s ease-out;
+  }
+
+  /* Focus utilities for accessibility */
+  .focus-ring {
+    @apply focus:ring-2 focus:ring-primary focus:ring-opacity-50 focus:outline-none;
+  }
+
+  /* Text utilities */
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Background utilities */
+  .bg-gradient-kampus {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  }
+
+  .bg-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Font loading optimization */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: hsl(0, 0%, 20%);
+    --ring: hsl(212, 84%, 30%);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

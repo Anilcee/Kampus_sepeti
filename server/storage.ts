@@ -1,0 +1,259 @@
+import {
+  users,
+  categories,
+  products,
+  cartItems,
+  orders,
+  orderItems,
+  type User,
+  type UpsertUser,
+  type Category,
+  type InsertCategory,
+  type Product,
+  type InsertProduct,
+  type CartItem,
+  type InsertCartItem,
+  type CartItemWithProduct,
+  type Order,
+  type InsertOrder,
+  type OrderItem,
+  type InsertOrderItem,
+  type ProductWithCategory,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, like, or } from "drizzle-orm";
+
+export interface IStorage {
+  // User operations (IMPORTANT) these user operations are mandatory for Replit Auth.
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
+  // Category operations
+  getCategories(): Promise<Category[]>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  
+  // Product operations
+  getProducts(filters?: {
+    categoryId?: string;
+    search?: string;
+    sortBy?: string;
+  }): Promise<ProductWithCategory[]>;
+  getProduct(id: string): Promise<ProductWithCategory | undefined>;
+  createProduct(product: InsertProduct): Promise<Product>;
+  updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
+  deleteProduct(id: string): Promise<boolean>;
+  
+  // Cart operations
+  getCartItems(userId: string): Promise<CartItemWithProduct[]>;
+  addToCart(cartItem: InsertCartItem): Promise<CartItem>;
+  updateCartItem(id: string, quantity: number): Promise<CartItem | undefined>;
+  removeFromCart(id: string): Promise<boolean>;
+  clearCart(userId: string): Promise<boolean>;
+  
+  // Order operations
+  createOrder(order: InsertOrder, orderItems: InsertOrderItem[]): Promise<Order>;
+  getOrders(userId?: string): Promise<Order[]>;
+  updateOrderStatus(id: string, status: string): Promise<Order | undefined>;
+}
+
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Category operations
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(categories.displayOrder, categories.name);
+  }
+
+  async createCategory(category: InsertCategory): Promise<Category> {
+    const [newCategory] = await db.insert(categories).values(category).returning();
+    return newCategory;
+  }
+
+  // Product operations
+  async getProducts(filters?: {
+    categoryId?: string;
+    search?: string;
+    sortBy?: string;
+  }): Promise<ProductWithCategory[]> {
+    const baseQuery = db
+      .select()
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(eq(products.isActive, true));
+
+    let conditions = [eq(products.isActive, true)];
+
+    if (filters?.categoryId) {
+      conditions.push(eq(products.categoryId, filters.categoryId));
+    }
+
+    if (filters?.search) {
+      conditions.push(
+        or(
+          like(products.name, `%${filters.search}%`),
+          like(products.description, `%${filters.search}%`)
+        )
+      );
+    }
+
+    const query = baseQuery.where(conditions.length > 1 ? and(...conditions) : conditions[0]);
+
+    const results = await query;
+    
+    return results.map(result => ({
+      ...result.products,
+      category: result.categories!,
+    }));
+  }
+
+  async getProduct(id: string): Promise<ProductWithCategory | undefined> {
+    const [result] = await db
+      .select()
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(and(eq(products.id, id), eq(products.isActive, true)));
+    
+    if (!result) return undefined;
+    
+    return {
+      ...result.products,
+      category: result.categories!,
+    };
+  }
+
+  async createProduct(product: InsertProduct): Promise<Product> {
+    const [newProduct] = await db.insert(products).values(product).returning();
+    return newProduct;
+  }
+
+  async updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined> {
+    const [updatedProduct] = await db
+      .update(products)
+      .set({ ...product, updatedAt: new Date() })
+      .where(eq(products.id, id))
+      .returning();
+    return updatedProduct;
+  }
+
+  async deleteProduct(id: string): Promise<boolean> {
+    const result = await db.delete(products).where(eq(products.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Cart operations
+  async getCartItems(userId: string): Promise<CartItemWithProduct[]> {
+    const results = await db
+      .select()
+      .from(cartItems)
+      .leftJoin(products, eq(cartItems.productId, products.id))
+      .where(eq(cartItems.userId, userId));
+    
+    return results.map(result => ({
+      ...result.cart_items,
+      product: result.products!,
+    }));
+  }
+
+  async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
+    // Check if item already exists in cart
+    const [existingItem] = await db
+      .select()
+      .from(cartItems)
+      .where(
+        and(
+          eq(cartItems.userId, cartItem.userId),
+          eq(cartItems.productId, cartItem.productId)
+        )
+      );
+
+    if (existingItem) {
+      // Update quantity
+      const [updatedItem] = await db
+        .update(cartItems)
+        .set({ 
+          quantity: (existingItem.quantity || 0) + (cartItem.quantity || 0),
+          updatedAt: new Date()
+        })
+        .where(eq(cartItems.id, existingItem.id))
+        .returning();
+      return updatedItem;
+    } else {
+      // Create new cart item
+      const [newItem] = await db.insert(cartItems).values(cartItem).returning();
+      return newItem;
+    }
+  }
+
+  async updateCartItem(id: string, quantity: number): Promise<CartItem | undefined> {
+    const [updatedItem] = await db
+      .update(cartItems)
+      .set({ quantity, updatedAt: new Date() })
+      .where(eq(cartItems.id, id))
+      .returning();
+    return updatedItem;
+  }
+
+  async removeFromCart(id: string): Promise<boolean> {
+    const result = await db.delete(cartItems).where(eq(cartItems.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async clearCart(userId: string): Promise<boolean> {
+    const result = await db.delete(cartItems).where(eq(cartItems.userId, userId));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Order operations
+  async createOrder(order: InsertOrder, orderItemsData: InsertOrderItem[]): Promise<Order> {
+    return await db.transaction(async (tx) => {
+      const [newOrder] = await tx.insert(orders).values(order).returning();
+      
+      const orderItemsWithOrderId = orderItemsData.map(item => ({
+        ...item,
+        orderId: newOrder.id,
+      }));
+      
+      await tx.insert(orderItems).values(orderItemsWithOrderId);
+      
+      return newOrder;
+    });
+  }
+
+  async getOrders(userId?: string): Promise<Order[]> {
+    if (userId) {
+      return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+    }
+    
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async updateOrderStatus(id: string, status: string): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder;
+  }
+}
+
+export const storage = new DatabaseStorage();

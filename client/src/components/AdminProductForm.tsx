@@ -1,0 +1,309 @@
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { insertProductSchema } from "@shared/schema";
+import type { Category, InsertProduct } from "@shared/schema";
+import { z } from "zod";
+
+const formSchema = insertProductSchema.extend({
+  categoryId: z.string().min(1, "Kategori seçimi zorunludur"),
+  name: z.string().min(1, "Ürün adı zorunludur"),
+  price: z.string().min(1, "Fiyat zorunludur"),
+  originalPrice: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+interface AdminProductFormProps {
+  categories: Category[];
+}
+
+export default function AdminProductForm({ categories }: AdminProductFormProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      price: "",
+      originalPrice: "",
+      categoryId: "",
+      imageUrl: "",
+      isActive: true,
+      stock: 0,
+      hasCoaching: false,
+      discountPercentage: 0,
+    },
+  });
+
+  const createProductMutation = useMutation({
+    mutationFn: async (data: FormData) => {
+      // Calculate discount percentage if original price is provided
+      let discountPercentage = 0;
+      if (data.originalPrice && parseFloat(data.originalPrice) > parseFloat(data.price)) {
+        const original = parseFloat(data.originalPrice);
+        const current = parseFloat(data.price);
+        discountPercentage = Math.round(((original - current) / original) * 100);
+      }
+
+      const productData: InsertProduct = {
+        ...data,
+        price: data.price,
+        originalPrice: data.originalPrice || data.price,
+        discountPercentage,
+        slug: data.name.toLowerCase()
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim(),
+      };
+
+      await apiRequest("POST", "/api/products", productData);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Ürün Eklendi",
+        description: "Yeni deneme kitabı başarıyla eklendi.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      form.reset();
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Ürün eklenirken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = (data: FormData) => {
+    createProductMutation.mutate(data);
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kitap Adı *</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Örn: 7. Sınıf Matematik Denemesi" 
+                    {...field} 
+                    data-testid="input-product-name"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kategori *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger data-testid="select-product-category">
+                      <SelectValue placeholder="Kategori seçin" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fiyat (TL) *</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="0.01"
+                    placeholder="9500.00" 
+                    {...field} 
+                    data-testid="input-product-price"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="originalPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Orijinal Fiyat (TL)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="0.01"
+                    placeholder="12000.00" 
+                    {...field} 
+                    data-testid="input-product-original-price"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stok Miktarı</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="100" 
+                    {...field}
+                    value={field.value || 0}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    data-testid="input-product-stock"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Görsel URL'si</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="https://example.com/image.jpg" 
+                    {...field}
+                    value={field.value || ""}
+                    data-testid="input-product-image"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Açıklama</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Kitap açıklaması..." 
+                  className="min-h-20"
+                  {...field}
+                  value={field.value || ""}
+                  data-testid="textarea-product-description"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex items-center space-x-6">
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value || false}
+                    onCheckedChange={field.onChange}
+                    data-testid="checkbox-product-active"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Aktif</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="hasCoaching"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value || false}
+                    onCheckedChange={field.onChange}
+                    data-testid="checkbox-product-coaching"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Koçluk Desteği</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="flex justify-end space-x-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => form.reset()}
+            data-testid="button-reset-form"
+          >
+            Temizle
+          </Button>
+          <Button
+            type="submit"
+            disabled={createProductMutation.isPending}
+            className="bg-primary hover:bg-blue-700"
+            data-testid="button-save-product"
+          >
+            {createProductMutation.isPending ? (
+              <i className="fas fa-spinner fa-spin mr-1"></i>
+            ) : (
+              <i className="fas fa-save mr-1"></i>
+            )}
+            Kaydet
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
