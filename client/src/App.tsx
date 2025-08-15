@@ -25,15 +25,9 @@ function Router() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          {(user as any)?.role === 'admin' && (
-            <Route path="/admin" component={Admin} />
-          )}
-        </>
+      <Route path="/" component={Home} />
+      {isAuthenticated && (user as any)?.role === 'admin' && (
+        <Route path="/admin" component={Admin} />
       )}
       <Route component={NotFound} />
     </Switch>
