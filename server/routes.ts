@@ -292,10 +292,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Initialize default categories if none exist
+  // Initialize default categories and products if none exist
   app.get('/api/init', async (req, res) => {
     try {
       const categories = await storage.getCategories();
+      const products = await storage.getProducts();
+      let message = [];
       
       if (categories.length === 0) {
         const defaultCategories = [
@@ -313,12 +315,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const category of defaultCategories) {
           await storage.createCategory(category);
         }
+        message.push("Categories initialized");
+      }
+
+      // Add sample products if none exist - this runs independently
+      if (products.length === 0) {
+        const updatedCategories = await storage.getCategories();
+        const lgsCategory = updatedCategories.find(c => c.slug === "lgs");
+        const sinif7Category = updatedCategories.find(c => c.slug === "7-sinif");
+        const yksCategory = updatedCategories.find(c => c.slug === "yks");
+        const kpssCategory = updatedCategories.find(c => c.slug === "kpss");
+        const sinif5Category = updatedCategories.find(c => c.slug === "5-sinif");
+
+        const sampleProducts = [
+          {
+            name: "LGS Matematik Denemesi - 20 Deneme",
+            slug: "lgs-matematik-denemesi-20-deneme",
+            description: "LGS sınavına hazırlık için özel olarak hazırlanmış 20 adet matematik denemesi. Güncel müfredata uygun, detaylı çözümlü.",
+            price: "89.50",
+            originalPrice: "120.00",
+            categoryId: lgsCategory?.id || "",
+            imageUrl: "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400",
+            isActive: true,
+            stock: 150,
+            hasCoaching: true,
+            discountPercentage: 25
+          },
+          {
+            name: "7. Sınıf Türkçe Deneme Seti",
+            slug: "7-sinif-turkce-deneme-seti",
+            description: "7. sınıf Türkçe dersi için hazırlanmış kapsamlı deneme seti. 15 farklı deneme ve detaylı açıklamalar.",
+            price: "65.90",
+            originalPrice: "85.00",
+            categoryId: sinif7Category?.id || "",
+            imageUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400",
+            isActive: true,
+            stock: 89,
+            hasCoaching: false,
+            discountPercentage: 22
+          },
+          {
+            name: "YKS Geometri Deneme Kitabı",
+            slug: "yks-geometri-deneme-kitabi",
+            description: "Üniversite sınavına hazırlık için geometri alanında 25 adet deneme. Video çözümler dahil.",
+            price: "134.99",
+            originalPrice: "180.00",
+            categoryId: yksCategory?.id || "",
+            imageUrl: "https://images.unsplash.com/photo-1596495578065-6e0763fa1178?w=400",
+            isActive: true,
+            stock: 76,
+            hasCoaching: true,
+            discountPercentage: 25
+          },
+          {
+            name: "KPSS Genel Kültür Deneme Soru Bankası",
+            slug: "kpss-genel-kultur-deneme-soru-bankasi",
+            description: "KPSS genel kültür bölümü için 1000+ soru ve 10 adet deneme sınavı içeren kapsamlı kaynak.",
+            price: "156.75",
+            originalPrice: "195.00",
+            categoryId: kpssCategory?.id || "",
+            imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400",
+            isActive: true,
+            stock: 45,
+            hasCoaching: false,
+            discountPercentage: 20
+          },
+          {
+            name: "5. Sınıf Matematik Denemesi",
+            slug: "5-sinif-matematik-denemesi",
+            description: "5. sınıf öğrencileri için hazırlanmış 12 adet matematik denemesi. Oyunlaştırılmış çözüm teknikleri.",
+            price: "42.50",
+            originalPrice: "55.00",
+            categoryId: sinif5Category?.id || "",
+            imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+            isActive: true,
+            stock: 120,
+            hasCoaching: false,
+            discountPercentage: 23
+          },
+          {
+            name: "LGS Fen Bilimleri Mega Deneme",
+            slug: "lgs-fen-bilimleri-mega-deneme",
+            description: "LGS Fen Bilimleri için 30 adet deneme içeren mega set. Interaktif deneyimler ve AR destekli açıklamalar.",
+            price: "198.90",
+            originalPrice: "250.00",
+            categoryId: lgsCategory?.id || "",
+            imageUrl: "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?w=400",
+            isActive: true,
+            stock: 67,
+            hasCoaching: true,
+            discountPercentage: 20
+          }
+        ];
+
+        for (const product of sampleProducts) {
+          if (product.categoryId) {
+            await storage.createProduct(product);
+          }
+        }
+        message.push("Sample products created");
       }
       
-      res.json({ message: "Categories initialized" });
+      if (message.length === 0) {
+        message.push("Database already initialized");
+      }
+      
+      res.json({ message: message.join(", ") });
     } catch (error) {
-      console.error("Error initializing categories:", error);
-      res.status(500).json({ message: "Failed to initialize categories" });
+      console.error("Error initializing database:", error);
+      res.status(500).json({ message: "Failed to initialize database" });
     }
   });
 
