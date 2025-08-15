@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Header from "@/components/Header";
+import SimpleHeader from "@/components/SimpleHeader";
 import Sidebar from "@/components/Sidebar";
 import ProductGrid from "@/components/ProductGrid";
 import ShoppingCart from "@/components/ShoppingCart";
-import { useAuth } from "@/hooks/useAuth";
 import type { ProductWithCategory, Category } from "@shared/schema";
 
 export default function Home() {
-  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("recommended");
@@ -39,11 +37,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
+      <SimpleHeader 
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onCartClick={() => setShowCart(true)}
-        user={user as any}
+        onCartClick={() => {
+          // Redirect to login if not authenticated
+          window.location.href = '/api/login';
+        }}
       />
 
       {/* Breadcrumb */}
@@ -118,16 +118,6 @@ export default function Home() {
         onClose={() => setShowCart(false)}
       />
 
-      {/* Admin Panel Access */}
-      {(user as any)?.role === 'admin' && (
-        <div className="fixed bottom-6 right-6 z-40">
-          <a href="/admin">
-            <button className="bg-accent text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors" data-testid="button-admin-panel">
-              <i className="fas fa-cog text-lg"></i>
-            </button>
-          </a>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white mt-12">

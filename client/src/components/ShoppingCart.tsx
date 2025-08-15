@@ -23,6 +23,7 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
 
   const { data: cartItems = [] } = useQuery<CartItemWithProduct[]>({
     queryKey: ["/api/cart"],
+    enabled: false, // Disable by default for non-authenticated users
   });
 
   const updateQuantityMutation = useMutation({
