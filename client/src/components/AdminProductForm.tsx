@@ -14,11 +14,22 @@ import { insertProductSchema } from "@shared/schema";
 import type { Category, InsertProduct } from "@shared/schema";
 import { z } from "zod";
 
-const formSchema = insertProductSchema.extend({
-  categoryId: z.string().min(1, "Kategori seçimi zorunludur"),
+const formSchema = z.object({
   name: z.string().min(1, "Ürün adı zorunludur"),
-  price: z.string().min(1, "Fiyat zorunludur"),
-  originalPrice: z.string().optional(),
+  description: z.string().optional(),
+  price: z.string().min(1, "Fiyat zorunludur").refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+    message: "Geçerli bir fiyat girin"
+  }),
+  originalPrice: z.string().optional().refine((val) => !val || (!isNaN(parseFloat(val)) && parseFloat(val) > 0), {
+    message: "Geçerli bir fiyat girin"
+  }),
+  categoryId: z.string().min(1, "Kategori seçimi zorunludur"),
+  imageUrl: z.string().optional(),
+  isActive: z.boolean().default(true),
+  stock: z.number().int().min(0).default(0),
+  hasCoaching: z.boolean().default(false),
+  discountPercentage: z.number().int().min(0).max(100).default(0),
+  slug: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -57,16 +68,32 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
         discountPercentage = Math.round(((original - current) / original) * 100);
       }
 
+      // Generate slug from name
+      const slug = data.name
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+
       const productData: InsertProduct = {
-        ...data,
-        price: parseFloat(data.price).toString(),
-        originalPrice: data.originalPrice ? parseFloat(data.originalPrice).toString() : parseFloat(data.price).toString(),
+        name: data.name,
+        description: data.description || null,
+        price: data.price, // Keep as string since API expects it
+        originalPrice: data.originalPrice || data.price, // Default to price if not provided
+        categoryId: data.categoryId,
+        imageUrl: data.imageUrl || null,
+        isActive: data.isActive,
+        stock: data.stock,
+        hasCoaching: data.hasCoaching,
         discountPercentage,
-        slug: data.name.toLowerCase()
-          .replace(/[^a-z0-9\s]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .trim(),
+        slug,
       };
 
       await apiRequest("POST", "/api/products", productData);
@@ -89,14 +116,15 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
   });
 
   const onSubmit = (data: FormData) => {
-    console.log("Form submitted with data:", data);
-    console.log("Form errors:", form.formState.errors);
     createProductMutation.mutate(data);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form 
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -296,7 +324,6 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
             disabled={createProductMutation.isPending}
             className="bg-primary hover:bg-blue-700"
             data-testid="button-save-product"
-            onClick={() => console.log("Save button clicked!", form.formState.errors)}
           >
             {createProductMutation.isPending ? (
               <i className="fas fa-spinner fa-spin mr-1"></i>
