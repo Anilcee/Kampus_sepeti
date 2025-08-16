@@ -21,10 +21,14 @@ export default function SimpleHeader({ searchQuery, onSearchChange, onCartClick 
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="bg-primary text-white px-4 py-2 rounded-lg font-bold text-xl">
-              <i className="fas fa-graduation-cap mr-2"></i>
-              Kampüs Sepeti
-            </div>
+            <a href="/" className="flex items-center hover:opacity-80 transition-opacity" data-testid="link-logo">
+              <img 
+                src="/logo.jpg" 
+                alt="Kampüs Sepeti" 
+                className="h-12 w-auto object-contain"
+                data-testid="img-logo"
+              />
+            </a>
           </div>
           
           {/* Search Bar */}
