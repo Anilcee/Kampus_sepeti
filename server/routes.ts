@@ -53,6 +53,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Product routes
   app.get('/api/products', async (req, res) => {
     try {
+      console.log("API Products request:", req.query);
       const { categoryId, search, sortBy } = req.query;
       const filters = {
         categoryId: categoryId as string,
@@ -61,6 +62,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const products = await storage.getProducts(filters);
+      console.log("API Products response length:", products.length);
+      
+      // Prevent caching for now
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       res.json(products);
     } catch (error) {
       console.error("Error fetching products:", error);

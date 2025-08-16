@@ -25,18 +25,36 @@ export default function Home() {
     queryKey: ["/api/categories"],
   });
 
-  const { data: products = [], isLoading: productsLoading } = useQuery<ProductWithCategory[]>({
+  const { data: products = [], isLoading: productsLoading, error } = useQuery<ProductWithCategory[]>({
     queryKey: ["/api/products", selectedCategory, searchQuery, sortBy],
-    queryFn: ({ queryKey }) => {
+    queryFn: async ({ queryKey }) => {
       const [, , categoryId, search, sort] = queryKey;
       const params = new URLSearchParams();
       if (categoryId) params.append("categoryId", categoryId as string);
       if (search) params.append("search", search as string);
       if (sort) params.append("sortBy", sort as string);
       
-      return fetch(`/api/products?${params}`).then(res => res.json());
+      const url = `/api/products?${params}`;
+      console.log("Frontend fetching:", url);
+      
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+      
+      const data = await response.json();
+      console.log("Frontend received:", data.length, "products");
+      return data;
     },
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
+  
+  console.log("Products state:", { products: products.length, isLoading: productsLoading, error });
 
   return (
     <div className="min-h-screen bg-gray-50">
