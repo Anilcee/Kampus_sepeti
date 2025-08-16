@@ -120,7 +120,7 @@ export default function Home() {
               </div>
             </div>
 
-            <ProductGrid products={products} isLoading={productsLoading} />
+            <ProductGrid products={products} isLoading={productsLoading} user={user as any} />
           </div>
         </div>
       </main>

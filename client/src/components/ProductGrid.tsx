@@ -1,13 +1,14 @@
 import ProductCard from "./ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { ProductWithCategory } from "@shared/schema";
+import type { ProductWithCategory, User } from "@shared/schema";
 
 interface ProductGridProps {
   products: ProductWithCategory[];
   isLoading: boolean;
+  user?: User;
 }
 
-export default function ProductGrid({ products, isLoading }: ProductGridProps) {
+export default function ProductGrid({ products, isLoading, user }: ProductGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -43,7 +44,7 @@ export default function ProductGrid({ products, isLoading }: ProductGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} user={user} />
       ))}
     </div>
   );

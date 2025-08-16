@@ -1,10 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import type { ProductWithCategory } from "@shared/schema";
+import type { ProductWithCategory, User } from "@shared/schema";
 
 // Turkish educational/study images from Unsplash
 const productImages = [
@@ -20,10 +19,10 @@ const productImages = [
 
 interface ProductCardProps {
   product: ProductWithCategory;
+  user?: User;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const { user } = useAuth();
+export default function ProductCard({ product, user }: ProductCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

@@ -119,10 +119,12 @@ export class DatabaseStorage implements IStorage {
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .where(whereClause);
     
-      return results.map((result: any) => ({
+      const mappedResults = results.map((result: any) => ({
         ...result.products,
         category: result.categories,
       }));
+      
+      return mappedResults;
     } catch (error) {
       console.error("Error fetching products:", error);
       return [];
