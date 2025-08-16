@@ -47,11 +47,11 @@ export default function SimpleHeader({ searchQuery, onSearchChange, onCartClick 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-4 text-sm">
-              <a href="/api/login" className="text-gray-600 hover:text-primary transition-colors">
+              <a href="/login" className="text-gray-600 hover:text-primary transition-colors">
                 <i className="fas fa-user mr-1"></i>Giriş Yap
               </a>
               <span className="text-gray-400">|</span>
-              <a href="/api/login" className="text-gray-600 hover:text-primary transition-colors">Kayıt Ol</a>
+              <a href="/register" className="text-gray-600 hover:text-primary transition-colors">Kayıt Ol</a>
             </div>
             
             <div className="flex items-center space-x-2">
@@ -61,7 +61,10 @@ export default function SimpleHeader({ searchQuery, onSearchChange, onCartClick 
               </button>
               
               <button 
-                onClick={onCartClick}
+                onClick={() => {
+                  // Redirect to login for cart access
+                  window.location.href = '/login';
+                }}
                 className="relative p-2 text-gray-600 hover:text-primary transition-colors"
                 data-testid="button-cart"
               >

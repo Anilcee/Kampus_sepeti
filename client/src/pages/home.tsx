@@ -28,16 +28,13 @@ export default function Home() {
   const { data: products = [], isLoading: productsLoading, error } = useQuery<ProductWithCategory[]>({
     queryKey: ["/api/products", selectedCategory, searchQuery, sortBy],
     queryFn: async ({ queryKey }) => {
-      console.log("QueryKey:", queryKey);
       const [, categoryId, search, sort] = queryKey;
-      console.log("Destructured:", { categoryId, search, sort });
       const params = new URLSearchParams();
       if (categoryId) params.append("categoryId", categoryId as string);
       if (search) params.append("search", search as string);
       if (sort) params.append("sortBy", sort as string);
       
       const url = `/api/products?${params}`;
-      console.log("Frontend fetching:", url);
       
       const response = await fetch(url, {
         cache: 'no-store',
@@ -47,7 +44,6 @@ export default function Home() {
       });
       
       const data = await response.json();
-      console.log("Frontend received:", data.length, "products");
       return data;
     },
     staleTime: 0,
@@ -56,7 +52,6 @@ export default function Home() {
     refetchOnWindowFocus: true,
   });
   
-  console.log("Products state:", { products: products.length, isLoading: productsLoading, error });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,8 +67,8 @@ export default function Home() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onCartClick={() => {
-            // Redirect to login if not authenticated
-            window.location.href = '/api/login';
+            // Redirect to login for cart access
+            window.location.href = '/login';
           }}
         />
       )}

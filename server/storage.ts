@@ -7,6 +7,7 @@ import {
   orderItems,
   type User,
   type UpsertUser,
+  type InsertUser,
   type Category,
   type InsertCategory,
   type Product,
@@ -24,8 +25,10 @@ import { db } from "./db";
 import { eq, desc, and, like, or } from "drizzle-orm";
 
 export interface IStorage {
-  // User operations (IMPORTANT) these user operations are mandatory for Replit Auth.
+  // User operations for custom authentication
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   
   // Category operations
@@ -60,6 +63,16 @@ export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
     return user;
   }
 
