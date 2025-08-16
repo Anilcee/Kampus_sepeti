@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Link } from "wouter";
 import type { ProductWithCategory, User } from "@shared/schema";
 
 // Turkish educational/study images from Unsplash
@@ -82,31 +83,35 @@ export default function ProductCard({ product, user }: ProductCardProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group" data-testid={`card-product-${product.id}`}>
-      <div className="relative">
-        <img 
-          src={imageUrl} 
-          alt={product.name} 
-          className="w-full h-48 object-cover"
-        />
-        {discountPercentage > 0 && (
-          <div className="absolute top-2 left-2 bg-accent text-white px-2 py-1 rounded-md text-sm font-bold">
-            %{discountPercentage} İndirim
+      <Link href={`/product/${product.slug}`}>
+        <div className="relative cursor-pointer">
+          <img 
+            src={imageUrl} 
+            alt={product.name} 
+            className="w-full h-48 object-cover"
+          />
+          {discountPercentage > 0 && (
+            <div className="absolute top-2 left-2 bg-accent text-white px-2 py-1 rounded-md text-sm font-bold">
+              %{discountPercentage} İndirim
+            </div>
+          )}
+          {product.hasCoaching && (
+            <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+              DENEME + KOÇLUK
+            </div>
+          )}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <i className="fas fa-eye text-primary"></i>
           </div>
-        )}
-        {product.hasCoaching && (
-          <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-            DENEME + KOÇLUK
-          </div>
-        )}
-        <button className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-90 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <i className="fas fa-eye text-primary"></i>
-        </button>
-      </div>
+        </div>
+      </Link>
       
       <div className="p-4">
-        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2" data-testid={`text-product-title-${product.id}`}>
-          {product.name}
-        </h3>
+        <Link href={`/product/${product.slug}`}>
+          <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 cursor-pointer hover:text-primary transition-colors" data-testid={`text-product-title-${product.id}`}>
+            {product.name}
+          </h3>
+        </Link>
         
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-2">

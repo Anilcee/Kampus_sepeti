@@ -42,6 +42,7 @@ export interface IStorage {
     sortBy?: string;
   }): Promise<ProductWithCategory[]>;
   getProduct(id: string): Promise<ProductWithCategory | undefined>;
+  getProductBySlug(slug: string): Promise<ProductWithCategory | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: string): Promise<boolean>;
@@ -150,6 +151,21 @@ export class DatabaseStorage implements IStorage {
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
       .where(and(eq(products.id, id), eq(products.isActive, true)));
+    
+    if (!result) return undefined;
+    
+    return {
+      ...result.products,
+      category: result.categories,
+    } as ProductWithCategory;
+  }
+
+  async getProductBySlug(slug: string): Promise<ProductWithCategory | undefined> {
+    const [result] = await db
+      .select()
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(and(eq(products.slug, slug), eq(products.isActive, true)));
     
     if (!result) return undefined;
     
