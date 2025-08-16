@@ -708,32 +708,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add sample exams if none exist
       const exams = await storage.getExams();
       if (exams.length === 0 && categories.length > 0) {
+        // LGS Matematik Deneme Sınavı - Gerçekçi cevap anahtarı
         const mathExam = await storage.createExam({
-          name: "LGS Matematik Deneme Sınavı",
-          description: "8. sınıf öğrencileri için matematik deneme sınavı. Temel matematik konularını kapsar.",
+          name: "LGS Matematik Deneme Sınavı - 2024",
+          description: "8. sınıf öğrencileri için kapsamlı matematik deneme sınavı. Sayılar, cebir, geometri, veri analizi konularını kapsar. MEB müfredatına uygun hazırlanmıştır.",
           subject: "Matematik", 
           durationMinutes: 80,
           totalQuestions: 20,
           answerKey: {
-            "1": "A", "2": "B", "3": "C", "4": "D", "5": "A",
-            "6": "B", "7": "C", "8": "D", "9": "A", "10": "B", 
-            "11": "C", "12": "D", "13": "A", "14": "B", "15": "C",
-            "16": "D", "17": "A", "18": "B", "19": "C", "20": "D"
+            "1": "B", "2": "A", "3": "D", "4": "C", "5": "A",
+            "6": "D", "7": "B", "8": "C", "9": "A", "10": "D", 
+            "11": "C", "12": "B", "13": "D", "14": "A", "15": "C",
+            "16": "A", "17": "B", "18": "D", "19": "C", "20": "A"
           },
           createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2",
           isActive: true,
         });
 
+        // YKS Türkçe Deneme Sınavı - Gerçekçi cevap anahtarı
         const turkishExam = await storage.createExam({
-          name: "YKS Türkçe Deneme Sınavı",
-          description: "12. sınıf öğrencileri için Türkçe deneme sınavı. Dil ve anlatım, edebiyat konularını içerir.",
+          name: "YKS Türkçe Deneme Sınavı - 2024",
+          description: "12. sınıf öğrencileri için kapsamlı Türkçe deneme sınavı. Dil ve anlatım, edebiyat, okuma anlama konularını içerir. YKS formatında hazırlanmıştır.",
           subject: "Türkçe",
           durationMinutes: 120,
           totalQuestions: 40,
-          answerKey: Object.fromEntries(
-            Array.from({length: 40}, (_, i) => [(i + 1).toString(), ["A", "B", "C", "D"][i % 4]])
-          ),
+          answerKey: {
+            "1": "C", "2": "A", "3": "B", "4": "D", "5": "A", "6": "C", "7": "B", "8": "D",
+            "9": "A", "10": "D", "11": "C", "12": "B", "13": "A", "14": "D", "15": "C", "16": "B",
+            "17": "D", "18": "A", "19": "C", "20": "B", "21": "A", "22": "D", "23": "C", "24": "B",
+            "25": "D", "26": "A", "27": "B", "28": "C", "29": "A", "30": "D", "31": "B", "32": "C",
+            "33": "A", "34": "D", "35": "C", "36": "B", "37": "A", "38": "D", "39": "C", "40": "B"
+          },
           createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2", 
+          isActive: true,
+        });
+
+        // AYT Fizik Deneme Sınavı
+        const physicsExam = await storage.createExam({
+          name: "AYT Fizik Deneme Sınavı - 2024",
+          description: "12. sınıf öğrencileri için fizik deneme sınavı. Mekanik, termodinamik, elektrik-manyetizma, modern fizik konularını kapsar.",
+          subject: "Fizik",
+          durationMinutes: 180,
+          totalQuestions: 14,
+          answerKey: {
+            "1": "B", "2": "D", "3": "A", "4": "C", "5": "D", "6": "A", "7": "B",
+            "8": "C", "9": "D", "10": "A", "11": "B", "12": "C", "13": "D", "14": "A"
+          },
+          createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2",
+          isActive: true,
+        });
+
+        // KPSS Genel Kültür Deneme Sınavı
+        const kpssExam = await storage.createExam({
+          name: "KPSS Genel Kültür Deneme Sınavı",
+          description: "KPSS sınavına hazırlanan adaylar için genel kültür deneme sınavı. Türkçe, tarih, coğrafya, vatandaşlık konularını içerir.",
+          subject: "Genel Kültür",
+          durationMinutes: 135,
+          totalQuestions: 60,
+          answerKey: {
+            "1": "A", "2": "C", "3": "B", "4": "D", "5": "A", "6": "B", "7": "D", "8": "C",
+            "9": "A", "10": "D", "11": "B", "12": "C", "13": "D", "14": "A", "15": "C", "16": "B",
+            "17": "A", "18": "D", "19": "C", "20": "B", "21": "D", "22": "A", "23": "B", "24": "C",
+            "25": "A", "26": "D", "27": "C", "28": "B", "29": "A", "30": "D", "31": "B", "32": "C",
+            "33": "D", "34": "A", "35": "C", "36": "B", "37": "D", "38": "A", "39": "B", "40": "C",
+            "41": "A", "42": "D", "43": "C", "44": "B", "45": "A", "46": "D", "47": "B", "48": "C",
+            "49": "D", "50": "A", "51": "C", "52": "B", "53": "A", "54": "D", "55": "C", "56": "B",
+            "57": "D", "58": "A", "59": "B", "60": "C"
+          },
+          createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2",
+          isActive: true,
+        });
+
+        // LGS Fen Bilimleri Deneme Sınavı
+        const scienceExam = await storage.createExam({
+          name: "LGS Fen Bilimleri Deneme Sınavı",
+          description: "8. sınıf öğrencileri için fen bilimleri deneme sınavı. Fizik, kimya, biyoloji ve yer bilimleri konularını kapsar.",
+          subject: "Fen Bilimleri",
+          durationMinutes: 80,
+          totalQuestions: 20,
+          answerKey: {
+            "1": "D", "2": "B", "3": "A", "4": "C", "5": "D", "6": "A", "7": "C", "8": "B",
+            "9": "D", "10": "A", "11": "B", "12": "C", "13": "A", "14": "D", "15": "B", "16": "C",
+            "17": "A", "18": "D", "19": "C", "20": "B"
+          },
+          createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2",
+          isActive: true,
+        });
+
+        // DGS Sayısal Deneme Sınavı
+        const dgsExam = await storage.createExam({
+          name: "DGS Sayısal Deneme Sınavı",
+          description: "DGS sınavına hazırlanan adaylar için sayısal bölüm deneme sınavı. Matematik ve geometri konularını içerir.",
+          subject: "Matematik",
+          durationMinutes: 150,
+          totalQuestions: 30,
+          answerKey: {
+            "1": "B", "2": "A", "3": "D", "4": "C", "5": "A", "6": "D", "7": "B", "8": "C",
+            "9": "A", "10": "D", "11": "C", "12": "B", "13": "D", "14": "A", "15": "C", "16": "B",
+            "17": "A", "18": "D", "19": "B", "20": "C", "21": "D", "22": "A", "23": "C", "24": "B",
+            "25": "A", "26": "D", "27": "B", "28": "C", "29": "D", "30": "A"
+          },
+          createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2",
           isActive: true,
         });
 

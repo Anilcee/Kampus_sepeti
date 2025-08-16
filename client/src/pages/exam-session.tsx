@@ -265,39 +265,61 @@ export default function ExamSession() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl">
-                    Soru {currentQuestion}
+                    <i className="fas fa-file-alt mr-2"></i>
+                    Optik Cevap Formu
                   </CardTitle>
                   <Badge className="bg-blue-100 text-blue-800">
                     {session.exam.subject}
                   </Badge>
                 </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Sınav kitapçığından soruları okuyun ve cevaplarınızı aşağıdaki formda işaretleyin
+                </p>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <p className="text-gray-800 text-lg leading-relaxed">
-                    {currentQuestion}. Bu soru metni demo amaçlı gösterilmektedir. Gerçek sınav sisteminde buraya soru metni gelecek.
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center">
+                  <p className="text-blue-800 font-medium">
+                    <i className="fas fa-info-circle mr-2"></i>
+                    Soru {currentQuestion} için fiziksel sınav kağıdınızdan soruyu okuyun ve aşağıdan cevabınızı seçin.
                   </p>
                 </div>
 
-                {/* Answer Options */}
-                <RadioGroup
-                  value={answers[currentQuestion.toString()] || ""}
-                  onValueChange={(value) => handleAnswerChange(currentQuestion.toString(), value)}
-                  className="space-y-3"
-                >
-                  {["A", "B", "C", "D"].map((option) => (
-                    <div key={option} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 border border-gray-200">
-                      <RadioGroupItem value={option} id={`${currentQuestion}-${option}`} className="text-green-600" />
-                      <Label
-                        htmlFor={`${currentQuestion}-${option}`}
-                        className="cursor-pointer flex-1 text-base"
-                        data-testid={`option-${currentQuestion}-${option}`}
-                      >
-                        <strong>{option})</strong> Bu seçenek metni demo amaçlı gösterilmektedir.
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+                {/* Optik Cevap Formu */}
+                <div className="bg-white border-2 border-gray-300 rounded-lg p-6">
+                  <div className="text-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">SORU {currentQuestion}</h3>
+                    <p className="text-sm text-gray-600">Doğru cevabı işaretleyin</p>
+                  </div>
+                  
+                  <RadioGroup
+                    value={answers[currentQuestion.toString()] || ""}
+                    onValueChange={(value) => handleAnswerChange(currentQuestion.toString(), value)}
+                    className="flex justify-center space-x-8"
+                  >
+                    {["A", "B", "C", "D"].map((option) => (
+                      <div key={option} className="flex flex-col items-center space-y-2">
+                        <Label
+                          htmlFor={`${currentQuestion}-${option}`}
+                          className="cursor-pointer text-2xl font-bold text-gray-700"
+                        >
+                          {option}
+                        </Label>
+                        <RadioGroupItem 
+                          value={option} 
+                          id={`${currentQuestion}-${option}`} 
+                          className="w-8 h-8 text-green-600 border-2 border-gray-400" 
+                          data-testid={`option-${currentQuestion}-${option}`}
+                        />
+                      </div>
+                    ))}
+                  </RadioGroup>
+                  
+                  <div className="mt-4 text-center">
+                    <p className="text-xs text-gray-500">
+                      Seçiminizi yapmak için yukarıdaki dairelerden birini işaretleyin
+                    </p>
+                  </div>
+                </div>
 
                 {/* Navigation Buttons */}
                 <div className="flex justify-between pt-6">
