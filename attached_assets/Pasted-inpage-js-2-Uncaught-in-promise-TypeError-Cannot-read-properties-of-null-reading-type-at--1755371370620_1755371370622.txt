@@ -1,0 +1,1016 @@
+inpage.js:2 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'type')
+    at inpage.js:2:28930951
+    at step (inpage.js:2:28929186)
+    at Object.next (inpage.js:2:28928414)
+    at binanceInjectedProvider_asyncGeneratorStep (inpage.js:2:28923248)
+    at _next (inpage.js:2:28923512)
+chunk-RPCDYKBN.js?v=801b0aba:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+/sinav:1 Failed to decode downloaded font: https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap
+/sinav:1 OTS parsing error: invalid sfntVersion: 791289955
+/sinav:1 Failed to decode downloaded font: https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap
+/sinav:1 OTS parsing error: invalid sfntVersion: 791289955
+/sinav/49f2dec2-befa-44cf-9a2f-cde49721f4b3:1 Failed to decode downloaded font: https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap
+/sinav/49f2dec2-befa-44cf-9a2f-cde49721f4b3:1 OTS parsing error: invalid sfntVersion: 791289955
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: undefined
+exam-session.tsx:40 DEBUG - Loading: true
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+chunk-RPCDYKBN.js?v=801b0aba:521 Warning: Cannot update a component (`Toaster`) while rendering a different component (`ExamSession`). To locate the bad setState() call inside `ExamSession`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
+    at ExamSession (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/src/pages/exam-session.tsx?t=1755371251623:29:55)
+    at Route (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=801b0aba:323:16)
+    at Switch (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=801b0aba:379:17)
+    at Router
+    at Provider (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=801b0aba:38:15)
+    at TooltipProvider (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=801b0aba:61:5)
+    at QueryClientProvider (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=801b0aba:2805:3)
+    at App
+printWarning @ chunk-RPCDYKBN.js?v=801b0aba:521
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+chunk-RPCDYKBN.js?v=801b0aba:11555 Uncaught Error: Too many re-renders. React limits the number of renders to prevent an infinite loop.
+    at renderWithHooks (chunk-RPCDYKBN.js?v=801b0aba:11555:23)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=801b0aba:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=801b0aba:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=801b0aba:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=801b0aba:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=801b0aba:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=801b0aba:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=801b0aba:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=801b0aba:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=801b0aba:19116:15)
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+exam-session.tsx:21 DEBUG - Route params: Object
+exam-session.tsx:22 DEBUG - Match: true
+exam-session.tsx:36 DEBUG - Session ID: 7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a
+exam-session.tsx:37 DEBUG - Is authenticated: true
+exam-session.tsx:38 DEBUG - Query enabled: true
+exam-session.tsx:39 DEBUG - Session data: Object
+exam-session.tsx:40 DEBUG - Loading: false
+exam-session.tsx:41 DEBUG - Error: null
+exam-session.tsx:177 DEBUG - Time up, submitting exam
+chunk-RPCDYKBN.js?v=801b0aba:11555 Uncaught Error: Too many re-renders. React limits the number of renders to prevent an infinite loop.
+    at renderWithHooks (chunk-RPCDYKBN.js?v=801b0aba:11555:23)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=801b0aba:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=801b0aba:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=801b0aba:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=801b0aba:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=801b0aba:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=801b0aba:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=801b0aba:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=801b0aba:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=801b0aba:19116:15)
+chunk-RPCDYKBN.js?v=801b0aba:14032 The above error occurred in the <ExamSession> component:
+
+    at ExamSession (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/src/pages/exam-session.tsx?t=1755371251623:29:55)
+    at Route (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=801b0aba:323:16)
+    at Switch (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=801b0aba:379:17)
+    at Router
+    at Provider (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=801b0aba:38:15)
+    at TooltipProvider (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=801b0aba:61:5)
+    at QueryClientProvider (https://36fa9281-9715-478a-849d-6c15a649c0ab-00-3fyob0uut8p77.kirk.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=801b0aba:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-RPCDYKBN.js?v=801b0aba:14032
+chunk-RPCDYKBN.js?v=801b0aba:9129 Uncaught Error: Too many re-renders. React limits the number of renders to prevent an infinite loop.
+    at renderWithHooks (chunk-RPCDYKBN.js?v=801b0aba:11555:23)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=801b0aba:14582:28)
+    at beginWork (chunk-RPCDYKBN.js?v=801b0aba:15924:22)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=801b0aba:19753:22)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=801b0aba:19198:20)
+    at workLoopSync (chunk-RPCDYKBN.js?v=801b0aba:19137:13)
+    at renderRootSync (chunk-RPCDYKBN.js?v=801b0aba:19116:15)
+    at recoverFromConcurrentError (chunk-RPCDYKBN.js?v=801b0aba:18736:28)
+    at performSyncWorkOnRoot (chunk-RPCDYKBN.js?v=801b0aba:18879:28)
+    at flushSyncCallbacks (chunk-RPCDYKBN.js?v=801b0aba:9119:30)
+7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a:1 Failed to decode downloaded font: https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap
+7bc14ac9-c232-4dbd-9cc7-1dd153df5e2a:1 OTS parsing error: invalid sfntVersion: 791289955

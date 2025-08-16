@@ -18,35 +18,25 @@ export default function ExamSession() {
   const [, navigate] = useLocation();
   const [match, params] = useRoute("/sinav/:examId/oturum/:sessionId");
   
-  console.log("DEBUG - Route params:", params);
-  console.log("DEBUG - Match:", match);
-  
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timeLeft, setTimeLeft] = useState<number>(0);
   // Removed currentQuestion state as we show all questions at once
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { data: session, isLoading, error } = useQuery<ExamSessionWithExam>({
+  const { data: session, isLoading } = useQuery<ExamSessionWithExam>({
     queryKey: ["/api/exam-sessions", params?.sessionId],
     enabled: !!params?.sessionId && isAuthenticated,
     refetchInterval: false,
   });
-  
-  console.log("DEBUG - Session ID:", params?.sessionId);
-  console.log("DEBUG - Is authenticated:", isAuthenticated);
-  console.log("DEBUG - Query enabled:", !!params?.sessionId && isAuthenticated);
-  console.log("DEBUG - Session data:", session);
-  console.log("DEBUG - Loading:", isLoading);
-  console.log("DEBUG - Error:", error);
 
   // Initialize answers and timer
   useEffect(() => {
-    if (session) {
+    if (session && session.status === "started") {
       const existingAnswers = (session.studentAnswers as Record<string, string>) || {};
       setAnswers(existingAnswers);
       
-      // Calculate remaining time
+      // Calculate remaining time more safely
       const startTime = new Date(session.startedAt!).getTime();
       const now = new Date().getTime();
       const elapsed = Math.floor((now - startTime) / 1000);
@@ -55,22 +45,37 @@ export default function ExamSession() {
       
       setTimeLeft(remaining);
       
-      if (remaining > 0 && session.status === "started") {
+      // Only start interval if there's time left
+      if (remaining > 0) {
         intervalRef.current = setInterval(() => {
           setTimeLeft(prev => {
             if (prev <= 1) {
-              handleTimeUp();
+              // Clear interval first to prevent multiple calls
+              if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+              }
+              // Use setTimeout to avoid calling during render
+              setTimeout(() => {
+                handleTimeUp();
+              }, 0);
               return 0;
             }
             return prev - 1;
           });
         }, 1000);
+      } else if (remaining <= 0) {
+        // Time already up, submit immediately but safely
+        setTimeout(() => {
+          handleTimeUp();
+        }, 100);
       }
     }
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
   }, [session]);
@@ -162,42 +167,27 @@ export default function ExamSession() {
   }
 
   if (!isLoading && !session) {
-    console.log("DEBUG - Session not found, redirecting to exams");
     navigate('/sinav');
     return null;
   }
   
   if (session && session.status === "completed") {
-    console.log("DEBUG - Session completed, redirecting to results");
     navigate(`/sinav/sonuclar/${params?.sessionId}`);
     return null;
   }
 
-  if (session && timeLeft <= 0 && session.status === "started") {
-    console.log("DEBUG - Time up, submitting exam");
-    handleTimeUp();
-    return null;
-  }
+  // Removed problematic time check that caused infinite loop
 
   if (!session) {
-    console.log("DEBUG - No session data, showing loading...");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Sınav yükleniyor...</p>
-          <p className="text-xs text-gray-500 mt-2">Session ID: {params?.sessionId}</p>
         </div>
       </div>
     );
   }
-  
-  console.log("DEBUG - Rendering exam session with:", {
-    sessionId: session.id,
-    status: session.status,
-    examName: session.exam?.name,
-    totalQuestions: session.exam?.totalQuestions
-  });
   
   return (
     <div className="min-h-screen bg-gray-50">
