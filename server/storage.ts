@@ -5,6 +5,7 @@ import {
   cartItems,
   orders,
   orderItems,
+  addresses,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -20,6 +21,8 @@ import {
   type OrderItem,
   type InsertOrderItem,
   type ProductWithCategory,
+  type Address,
+  type InsertAddress,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, or } from "drizzle-orm";
@@ -47,6 +50,13 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: string, product: Partial<InsertProduct>): Promise<Product | undefined>;
   deleteProduct(id: string): Promise<boolean>;
+  
+  // Address operations
+  getAddresses(userId: string): Promise<Address[]>;
+  createAddress(address: InsertAddress): Promise<Address>;
+  updateAddress(id: string, address: Partial<InsertAddress>): Promise<Address | undefined>;
+  deleteAddress(id: string): Promise<boolean>;
+  setDefaultAddress(userId: string, addressId: string): Promise<boolean>;
   
   // Cart operations
   getCartItems(userId: string): Promise<CartItemWithProduct[]>;
@@ -208,6 +218,96 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
+  // Address operations
+  async getAddresses(userId: string): Promise<Address[]> {
+    return await db
+      .select()
+      .from(addresses)
+      .where(eq(addresses.userId, userId))
+      .orderBy(desc(addresses.isDefault), desc(addresses.createdAt));
+  }
+
+  async createAddress(address: InsertAddress): Promise<Address> {
+    return await db.transaction(async (tx) => {
+      // If this is the first address or marked as default, unset other defaults
+      if (address.isDefault) {
+        await tx
+          .update(addresses)
+          .set({ isDefault: false })
+          .where(eq(addresses.userId, address.userId));
+      } else {
+        // If no default address exists, make this the default
+        const existingAddresses = await tx
+          .select()
+          .from(addresses)
+          .where(eq(addresses.userId, address.userId));
+        
+        if (existingAddresses.length === 0) {
+          address.isDefault = true;
+        }
+      }
+
+      const [newAddress] = await tx.insert(addresses).values(address).returning();
+      return newAddress;
+    });
+  }
+
+  async updateAddress(id: string, address: Partial<InsertAddress>): Promise<Address | undefined> {
+    return await db.transaction(async (tx) => {
+      // If setting as default, unset other defaults for this user
+      if (address.isDefault) {
+        const [currentAddress] = await tx
+          .select()
+          .from(addresses)
+          .where(eq(addresses.id, id));
+        
+        if (currentAddress) {
+          await tx
+            .update(addresses)
+            .set({ isDefault: false })
+            .where(and(
+              eq(addresses.userId, currentAddress.userId),
+              eq(addresses.isDefault, true)
+            ));
+        }
+      }
+
+      const [updatedAddress] = await tx
+        .update(addresses)
+        .set({ ...address, updatedAt: new Date() })
+        .where(eq(addresses.id, id))
+        .returning();
+      
+      return updatedAddress;
+    });
+  }
+
+  async deleteAddress(id: string): Promise<boolean> {
+    const result = await db.delete(addresses).where(eq(addresses.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async setDefaultAddress(userId: string, addressId: string): Promise<boolean> {
+    return await db.transaction(async (tx) => {
+      // Unset all default addresses for this user
+      await tx
+        .update(addresses)
+        .set({ isDefault: false })
+        .where(eq(addresses.userId, userId));
+
+      // Set the specified address as default
+      const result = await tx
+        .update(addresses)
+        .set({ isDefault: true })
+        .where(and(
+          eq(addresses.id, addressId),
+          eq(addresses.userId, userId)
+        ));
+
+      return (result.rowCount || 0) > 0;
+    });
+  }
+
   // Cart operations
   async getCartItems(userId: string): Promise<CartItemWithProduct[]> {
     const results = await db
@@ -223,6 +323,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
+    // Get product to check stock
+    const [product] = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, cartItem.productId));
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    if (!product.stock || product.stock <= 0) {
+      throw new Error("Product is out of stock");
+    }
+
     // Check if item already exists in cart
     const [existingItem] = await db
       .select()
@@ -235,17 +349,28 @@ export class DatabaseStorage implements IStorage {
       );
 
     if (existingItem) {
+      // Check if new quantity would exceed stock
+      const newQuantity = (existingItem.quantity || 0) + (cartItem.quantity || 0);
+      if (newQuantity > product.stock) {
+        throw new Error(`Cannot add ${cartItem.quantity} more items. You already have ${existingItem.quantity} in cart. Only ${product.stock} items available in stock`);
+      }
+
       // Update quantity
       const [updatedItem] = await db
         .update(cartItems)
         .set({ 
-          quantity: (existingItem.quantity || 0) + (cartItem.quantity || 0),
+          quantity: newQuantity,
           updatedAt: new Date()
         })
         .where(eq(cartItems.id, existingItem.id))
         .returning();
       return updatedItem;
     } else {
+      // Check if requested quantity exceeds stock
+      if ((cartItem.quantity || 0) > product.stock) {
+        throw new Error(`Cannot add ${cartItem.quantity} items. Only ${product.stock} items available in stock`);
+      }
+
       // Create new cart item
       const [newItem] = await db.insert(cartItems).values(cartItem).returning();
       return newItem;
@@ -253,6 +378,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateCartItem(id: string, quantity: number): Promise<CartItem | undefined> {
+    // Get cart item with product info
+    const [cartItem] = await db
+      .select({
+        cartItem: cartItems,
+        product: products
+      })
+      .from(cartItems)
+      .leftJoin(products, eq(cartItems.productId, products.id))
+      .where(eq(cartItems.id, id));
+
+    if (!cartItem) {
+      throw new Error("Cart item not found");
+    }
+
+    if (!cartItem.product) {
+      throw new Error("Product not found");
+    }
+
+    // Check if requested quantity exceeds stock
+    if (quantity > (cartItem.product.stock || 0)) {
+      throw new Error(`Cannot update quantity to ${quantity}. Only ${cartItem.product.stock} items available in stock`);
+    }
+
     const [updatedItem] = await db
       .update(cartItems)
       .set({ quantity, updatedAt: new Date() })
@@ -274,6 +422,17 @@ export class DatabaseStorage implements IStorage {
   // Order operations
   async createOrder(order: InsertOrder, orderItemsData: InsertOrderItem[]): Promise<Order> {
     return await db.transaction(async (tx) => {
+      // Check stock for all items before proceeding
+      for (const item of orderItemsData) {
+        const [product] = await tx.select().from(products).where(eq(products.id, item.productId));
+        if (!product) {
+          throw new Error(`Product ${item.productId} not found`);
+        }
+        if (!product.stock || product.stock < item.quantity) {
+          throw new Error(`Insufficient stock for product ${product.name}. Requested: ${item.quantity}, Available: ${product.stock || 0}`);
+        }
+      }
+
       const [newOrder] = await tx.insert(orders).values(order).returning();
 
       const orderItemsWithOrderId = orderItemsData.map(item => ({
@@ -283,7 +442,7 @@ export class DatabaseStorage implements IStorage {
 
       await tx.insert(orderItems).values(orderItemsWithOrderId);
 
-      // Stok azaltma işlemi (mevcut stok değerini alıp azalt)
+      // Reduce stock for all items
       for (const item of orderItemsData) {
         const [product] = await tx.select().from(products).where(eq(products.id, item.productId));
         if (product && typeof product.stock === 'number') {

@@ -35,10 +35,16 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
     },
-    onError: () => {
+    onError: (error) => {
+      // Try to get error message from response
+      let errorMessage = "Miktar güncellenirken bir hata oluştu.";
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as any).message;
+      }
+      
       toast({
         title: "Hata",
-        description: "Miktar güncellenirken bir hata oluştu.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -95,8 +101,18 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
     return sum + (parseFloat(item.product.price) * item.quantity);
   }, 0);
 
-  const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
+  const handleUpdateQuantity = (itemId: string, newQuantity: number, maxStock: number) => {
     if (newQuantity < 1) return;
+    
+    if (newQuantity > maxStock) {
+      toast({
+        title: "Stok Yetersiz",
+        description: `Maksimum ${maxStock} adet ekleyebilirsiniz.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     updateQuantityMutation.mutate({ itemId, quantity: newQuantity });
   };
 
@@ -167,7 +183,7 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                       </p>
                       <div className="flex items-center space-x-2 mt-1">
                         <button 
-                          onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity - 1, item.product.stock || 0)}
                           className="w-6 h-6 bg-gray-200 rounded text-xs hover:bg-gray-300"
                           data-testid={`button-decrease-quantity-${item.id}`}
                         >
@@ -177,13 +193,19 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
                           {item.quantity}
                         </span>
                         <button 
-                          onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                          className="w-6 h-6 bg-gray-200 rounded text-xs hover:bg-gray-300"
+                          onClick={() => handleUpdateQuantity(item.id, item.quantity + 1, item.product.stock || 0)}
+                          disabled={item.quantity >= (item.product.stock || 0)}
+                          className="w-6 h-6 bg-gray-200 rounded text-xs hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                           data-testid={`button-increase-quantity-${item.id}`}
                         >
                           +
                         </button>
                       </div>
+                      {item.product.stock && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Stok: {item.product.stock}
+                        </div>
+                      )}
                     </div>
                     <button 
                       onClick={() => handleRemoveItem(item.id)}

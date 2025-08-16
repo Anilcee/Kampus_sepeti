@@ -53,6 +53,22 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const addresses = pgTable("addresses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title").notNull(), // "Ev", "İş", "Okul" etc.
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  phone: varchar("phone").notNull(),
+  address: text("address").notNull(),
+  city: varchar("city").notNull(),
+  district: varchar("district").notNull(),
+  postalCode: varchar("postal_code"),
+  isDefault: boolean("is_default").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
@@ -100,6 +116,13 @@ export const orderItems = pgTable("order_items", {
 });
 
 // Relations
+export const addressesRelations = relations(addresses, ({ one }) => ({
+  user: one(users, {
+    fields: [addresses.userId],
+    references: [users.id],
+  }),
+}));
+
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
   parent: one(categories, {
     fields: [categories.parentId],
@@ -151,6 +174,7 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   cartItems: many(cartItems),
   orders: many(orders),
+  addresses: many(addresses),
 }));
 
 // Insert schemas
@@ -182,10 +206,19 @@ export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
   createdAt: true,
 });
 
+export const insertAddressSchema = createInsertSchema(addresses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+export type Address = typeof addresses.$inferSelect;
+export type InsertAddress = typeof addresses.$inferInsert;
 
 // Authentication schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -215,10 +248,6 @@ export const updateProfileSchema = z.object({
   firstName: z.string().min(1, "Ad gerekli"),
   lastName: z.string().min(1, "Soyad gerekli"),
   phone: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  district: z.string().optional(),
-  postalCode: z.string().optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

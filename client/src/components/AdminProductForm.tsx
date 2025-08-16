@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,29 +36,49 @@ type FormData = z.infer<typeof formSchema>;
 
 interface AdminProductFormProps {
   categories: Category[];
+  editProduct?: InsertProduct & { id: string };
+  onCancel?: () => void;
 }
 
-export default function AdminProductForm({ categories }: AdminProductFormProps) {
+export default function AdminProductForm({ categories, editProduct, onCancel }: AdminProductFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      price: "",
-      originalPrice: "",
-      categoryId: "",
-      imageUrl: "",
-      isActive: true,
-      stock: 0,
-      hasCoaching: false,
-      discountPercentage: 0,
+      name: editProduct?.name || "",
+      description: editProduct?.description || "",
+      price: editProduct?.price?.toString() || "",
+      originalPrice: editProduct?.originalPrice?.toString() || "",
+      categoryId: editProduct?.categoryId || "",
+      imageUrl: editProduct?.imageUrl || "",
+      isActive: editProduct?.isActive ?? true,
+      stock: editProduct?.stock || 0,
+      hasCoaching: editProduct?.hasCoaching || false,
+      discountPercentage: editProduct?.discountPercentage || 0,
     },
   });
 
-  const createProductMutation = useMutation({
+  // Update form values when editProduct changes
+  useEffect(() => {
+    if (editProduct) {
+      form.reset({
+        name: editProduct.name || "",
+        description: editProduct.description || "",
+        price: editProduct.price?.toString() || "",
+        originalPrice: editProduct.originalPrice?.toString() || "",
+        categoryId: editProduct.categoryId || "",
+        imageUrl: editProduct.imageUrl || "",
+        isActive: editProduct.isActive ?? true,
+        stock: editProduct.stock || 0,
+        hasCoaching: editProduct.hasCoaching || false,
+        discountPercentage: editProduct.discountPercentage || 0,
+      });
+    }
+  }, [editProduct, form]);
+
+  const saveProductMutation = useMutation({
     mutationFn: async (data: FormData) => {
       // Calculate discount percentage if original price is provided
       let discountPercentage = 0;
@@ -96,27 +116,42 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
         slug,
       };
 
-      await apiRequest("POST", "/api/products", productData);
+      if (editProduct) {
+        // Update existing product
+        await apiRequest("PUT", `/api/products/${editProduct.id}`, productData);
+      } else {
+        // Create new product
+        await apiRequest("POST", "/api/products", productData);
+      }
     },
     onSuccess: () => {
       toast({
-        title: "Ürün Eklendi",
-        description: "Yeni deneme kitabı başarıyla eklendi.",
+        title: editProduct ? "Ürün Güncellendi" : "Ürün Eklendi",
+        description: editProduct 
+          ? "Ürün başarıyla güncellendi." 
+          : "Yeni deneme kitabı başarıyla eklendi.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-      form.reset();
+      if (!editProduct) {
+        form.reset();
+      }
+      if (onCancel && editProduct) {
+        onCancel();
+      }
     },
     onError: () => {
       toast({
         title: "Hata",
-        description: "Ürün eklenirken bir hata oluştu.",
+        description: editProduct 
+          ? "Ürün güncellenirken bir hata oluştu." 
+          : "Ürün eklenirken bir hata oluştu.",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: FormData) => {
-    createProductMutation.mutate(data);
+    saveProductMutation.mutate(data);
   };
 
   return (
@@ -311,26 +346,38 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
         </div>
 
         <div className="flex justify-end space-x-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => form.reset()}
-            data-testid="button-reset-form"
-          >
-            Temizle
-          </Button>
+          {editProduct && onCancel && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              data-testid="button-cancel-edit"
+            >
+              İptal
+            </Button>
+          )}
+          {!editProduct && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => form.reset()}
+              data-testid="button-reset-form"
+            >
+              Temizle
+            </Button>
+          )}
           <Button
             type="submit"
-            disabled={createProductMutation.isPending}
+            disabled={saveProductMutation.isPending}
             className="bg-primary hover:bg-blue-700"
             data-testid="button-save-product"
           >
-            {createProductMutation.isPending ? (
+            {saveProductMutation.isPending ? (
               <i className="fas fa-spinner fa-spin mr-1"></i>
             ) : (
               <i className="fas fa-save mr-1"></i>
             )}
-            Kaydet
+            {editProduct ? "Güncelle" : "Kaydet"}
           </Button>
         </div>
       </form>

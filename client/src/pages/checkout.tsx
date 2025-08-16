@@ -10,7 +10,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import ShoppingCart from "@/components/ShoppingCart";
-import type { CartItemWithProduct, User } from "@shared/schema";
+import AddressList from "@/components/AddressList";
+import type { CartItemWithProduct, User, Address } from "@shared/schema";
 
 // Turkish educational/study images
 const productImages = [
@@ -27,6 +28,7 @@ export default function Checkout() {
   const queryClient = useQueryClient();
   const [showCart, setShowCart] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   
   const { data: cartItems = [] } = useQuery<CartItemWithProduct[]>({
     queryKey: ["/api/cart"],
@@ -37,6 +39,19 @@ export default function Checkout() {
     queryKey: ["/api/auth/user"],
     enabled: !!user,
   });
+
+  const { data: addresses = [] } = useQuery<Address[]>({
+    queryKey: ["/api/addresses"],
+    enabled: !!user,
+  });
+
+  // Set default address when addresses are loaded
+  useEffect(() => {
+    if (addresses.length > 0 && !selectedAddress) {
+      const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
+      setSelectedAddress(defaultAddress);
+    }
+  }, [addresses, selectedAddress]);
 
   useEffect(() => {
     if (!user) {
@@ -95,13 +110,12 @@ export default function Checkout() {
   const finalTotal = totalAmount + shippingCost;
 
   const handlePayment = () => {
-    if (!userProfile?.firstName || !userProfile?.lastName || !userProfile?.address) {
+    if (!selectedAddress) {
       toast({
-        title: "Eksik Bilgi",
-        description: "Lütfen profil sayfanızdan adres bilgilerinizi tamamlayın.",
+        title: "Adres Seçimi Gerekli",
+        description: "Lütfen bir teslimat adresi seçiniz.",
         variant: "destructive",
       });
-      setLocation("/profile");
       return;
     }
     
@@ -144,50 +158,37 @@ export default function Checkout() {
                   <i className="fas fa-map-marker-alt mr-2 text-primary"></i>
                   Teslimat Adresi
                 </h2>
-                {userProfile?.address ? (
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="font-medium text-gray-800" data-testid="text-delivery-name">
-                          {userProfile.firstName} {userProfile.lastName}
-                        </p>
-                        <p className="text-gray-600" data-testid="text-delivery-address">
-                          {userProfile.address}
-                        </p>
-                        <p className="text-gray-600" data-testid="text-delivery-location">
-                          {userProfile.district}, {userProfile.city} {userProfile.postalCode}
-                        </p>
-                        {userProfile.phone && (
-                          <p className="text-gray-600" data-testid="text-delivery-phone">
-                            Tel: {userProfile.phone}
-                          </p>
-                        )}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setLocation("/profile")}
-                        data-testid="button-edit-address"
-                      >
-                        <i className="fas fa-edit mr-1"></i>
-                        Düzenle
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                    <p className="text-yellow-800 mb-3">
-                      <i className="fas fa-exclamation-triangle mr-2"></i>
-                      Teslimat adresi eklenmemiş.
-                    </p>
-                    <Button
+                
+                {addresses.length === 0 ? (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                    <i className="fas fa-map-marker-alt text-4xl text-gray-400 mb-4"></i>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">Adres Bulunamadı</h3>
+                    <p className="text-gray-600 mb-4">Sipariş verebilmek için en az bir adres eklemelisiniz.</p>
+                    <Button 
                       onClick={() => setLocation("/profile")}
-                      className="bg-primary text-white hover:bg-blue-700"
-                      data-testid="button-add-address"
+                      className="bg-primary hover:bg-blue-700"
                     >
-                      <i className="fas fa-plus mr-2"></i>
                       Adres Ekle
                     </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <AddressList 
+                      onSelectAddress={setSelectedAddress}
+                      selectedAddressId={selectedAddress?.id}
+                      showSelection={true}
+                    />
+                    {selectedAddress && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h4 className="font-medium text-green-800 mb-2">Seçili Teslimat Adresi:</h4>
+                        <div className="text-sm text-green-700">
+                          <p className="font-medium">{selectedAddress.firstName} {selectedAddress.lastName}</p>
+                          <p>{selectedAddress.phone}</p>
+                          <p>{selectedAddress.address}</p>
+                          <p>{selectedAddress.district}, {selectedAddress.city} {selectedAddress.postalCode}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -334,8 +335,8 @@ export default function Checkout() {
 
                 <Button
                   onClick={handlePayment}
-                  disabled={createOrderMutation.isPending || !userProfile?.address}
-                  className="w-full bg-primary text-white hover:bg-blue-700 transition-colors font-semibold py-3 mt-6"
+                  disabled={createOrderMutation.isPending || !selectedAddress}
+                  className="w-full bg-primary text-white hover:bg-blue-700 transition-colors font-semibold py-3 mt-6 disabled:bg-gray-400"
                   data-testid="button-complete-order"
                 >
                   {createOrderMutation.isPending ? (

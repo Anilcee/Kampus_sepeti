@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin, hashPassword, comparePassword } from "./customAuth";
 import { z } from "zod";
-import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
+import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, insertAddressSchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -38,6 +38,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Profile update error:", error);
       res.status(500).json({ message: "Profil güncellenirken bir hata oluştu" });
+    }
+  });
+
+  // Address routes
+  app.get('/api/addresses', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const addresses = await storage.getAddresses(userId);
+      res.json(addresses);
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      res.status(500).json({ message: "Adresler yüklenirken bir hata oluştu" });
+    }
+  });
+
+  app.post('/api/addresses', isAuthenticated, async (req, res) => {
+    try {
+      console.log("Address creation request body:", req.body);
+      const userId = req.session.userId!;
+      
+      // Add userId to the data before validation
+      const dataWithUserId = {
+        ...req.body,
+        userId,
+      };
+      
+      const result = insertAddressSchema.safeParse(dataWithUserId);
+      if (!result.success) {
+        console.log("Address validation failed:", result.error);
+        return res.status(400).json({ 
+          message: "Geçersiz adres bilgileri",
+          errors: result.error.errors 
+        });
+      }
+
+      const address = await storage.createAddress(result.data);
+      
+      res.status(201).json(address);
+    } catch (error) {
+      console.error("Error creating address:", error);
+      res.status(500).json({ message: "Adres oluşturulurken bir hata oluştu" });
+    }
+  });
+
+  app.put('/api/addresses/:id', isAuthenticated, async (req, res) => {
+    try {
+      // For updates, we don't need userId validation since we're updating existing address
+      const result = insertAddressSchema.omit({ userId: true }).safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ message: "Geçersiz adres bilgileri" });
+      }
+
+      const address = await storage.updateAddress(req.params.id, result.data);
+      if (!address) {
+        return res.status(404).json({ message: "Adres bulunamadı" });
+      }
+      
+      res.json(address);
+    } catch (error) {
+      console.error("Error updating address:", error);
+      res.status(500).json({ message: "Adres güncellenirken bir hata oluştu" });
+    }
+  });
+
+  app.delete('/api/addresses/:id', isAuthenticated, async (req, res) => {
+    try {
+      const success = await storage.deleteAddress(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Adres bulunamadı" });
+      }
+      
+      res.json({ message: "Adres silindi" });
+    } catch (error) {
+      console.error("Error deleting address:", error);
+      res.status(500).json({ message: "Adres silinirken bir hata oluştu" });
+    }
+  });
+
+  app.put('/api/addresses/:id/default', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const success = await storage.setDefaultAddress(userId, req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Adres bulunamadı" });
+      }
+      
+      res.json({ message: "Varsayılan adres güncellendi" });
+    } catch (error) {
+      console.error("Error setting default address:", error);
+      res.status(500).json({ message: "Varsayılan adres ayarlanırken bir hata oluştu" });
     }
   });
 
@@ -267,7 +357,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(cartItem);
     } catch (error) {
       console.error("Error adding to cart:", error);
-      res.status(500).json({ message: "Failed to add to cart" });
+      const message = error instanceof Error ? error.message : "Failed to add to cart";
+      
+      if (message.includes("out of stock")) {
+        return res.status(400).json({ message: "Bu ürün şu anda stokta bulunmamaktadır." });
+      }
+      if (message.includes("Cannot add") && message.includes("more items")) {
+        // Extract numbers from error message for better user experience
+        return res.status(400).json({ message: "Sepetinizde bu üründen zaten var. Stok sınırını aştınız." });
+      }
+      if (message.includes("Cannot add") && message.includes("items available")) {
+        return res.status(400).json({ message: "İstediğiniz miktar stok sınırını aşıyor." });
+      }
+      if (message.includes("Product not found")) {
+        return res.status(404).json({ message: "Ürün bulunamadı." });
+      }
+      
+      res.status(500).json({ message: "Sepete ekleme işlemi başarısız oldu." });
     }
   });
 
@@ -277,13 +383,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cartItem = await storage.updateCartItem(req.params.id, quantity);
       
       if (!cartItem) {
-        return res.status(404).json({ message: "Cart item not found" });
+        return res.status(404).json({ message: "Sepet öğesi bulunamadı." });
       }
       
       res.json(cartItem);
     } catch (error) {
       console.error("Error updating cart item:", error);
-      res.status(500).json({ message: "Failed to update cart item" });
+      const message = error instanceof Error ? error.message : "Failed to update cart item";
+      
+      if (message.includes("Cannot update quantity") && message.includes("items available")) {
+        return res.status(400).json({ message: "İstediğiniz miktar stok sınırını aşıyor." });
+      }
+      if (message.includes("Cart item not found")) {
+        return res.status(404).json({ message: "Sepet öğesi bulunamadı." });
+      }
+      if (message.includes("Product not found")) {
+        return res.status(404).json({ message: "Ürün bulunamadı." });
+      }
+      
+      res.status(500).json({ message: "Sepet güncelleme işlemi başarısız oldu." });
     }
   });
 
@@ -345,7 +463,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(order);
     } catch (error) {
       console.error("Error creating order:", error);
-      res.status(500).json({ message: "Failed to create order" });
+      const message = error instanceof Error ? error.message : "Failed to create order";
+      
+      if (message.includes("Insufficient stock")) {
+        return res.status(400).json({ message: "Sepetinizdeki bazı ürünler için yeterli stok bulunmamaktadır. Lütfen sepetinizi güncelleyiniz." });
+      }
+      if (message.includes("not found")) {
+        return res.status(404).json({ message: "Sepetinizdeki bazı ürünler artık mevcut değil." });
+      }
+      
+      res.status(500).json({ message: "Sipariş oluşturulurken bir hata oluştu." });
     }
   });
 

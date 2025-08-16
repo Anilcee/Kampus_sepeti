@@ -13,6 +13,7 @@ export default function Admin() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("products");
+  const [editingProduct, setEditingProduct] = useState<ProductWithCategory | null>(null);
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -43,6 +44,16 @@ export default function Admin() {
     queryKey: ["/api/orders"],
     enabled: isAuthenticated && (user as any)?.role === 'admin',
   });
+
+  const handleEditProduct = (product: ProductWithCategory) => {
+    setEditingProduct(product);
+    setActiveTab("edit-product");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProduct(null);
+    setActiveTab("products");
+  };
 
   if (isLoading) {
     return (
@@ -151,7 +162,7 @@ export default function Admin() {
 
         {/* Admin Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${editingProduct ? 'grid-cols-5' : 'grid-cols-4'}`}>
             <TabsTrigger value="products" data-testid="tab-products">
               <i className="fas fa-book mr-2"></i>
               Ürün Yönetimi
@@ -160,6 +171,12 @@ export default function Admin() {
               <i className="fas fa-plus mr-2"></i>
               Yeni Ürün
             </TabsTrigger>
+            {editingProduct && (
+              <TabsTrigger value="edit-product" data-testid="tab-edit-product">
+                <i className="fas fa-edit mr-2"></i>
+                Ürün Düzenle
+              </TabsTrigger>
+            )}
             <TabsTrigger value="orders" data-testid="tab-orders">
               <i className="fas fa-shopping-cart mr-2"></i>
               Siparişler
@@ -176,7 +193,11 @@ export default function Admin() {
                 <CardTitle>Ürün Yönetimi</CardTitle>
               </CardHeader>
               <CardContent>
-                <AdminProductTable products={products} categories={categories} />
+                <AdminProductTable 
+                  products={products} 
+                  categories={categories} 
+                  onEditProduct={handleEditProduct}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -191,6 +212,23 @@ export default function Admin() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {editingProduct && (
+            <TabsContent value="edit-product">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ürün Düzenle: {editingProduct.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AdminProductForm 
+                    categories={categories} 
+                    editProduct={editingProduct}
+                    onCancel={handleCancelEdit}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           <TabsContent value="orders">
             <Card>

@@ -17,6 +17,7 @@ import { updateProfileSchema, type UpdateProfileInput, type User, type Order, ty
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import ShoppingCart from "@/components/ShoppingCart";
+import AddressList from "@/components/AddressList";
 
 type OrderDetails = {
   order: Order;
@@ -56,10 +57,6 @@ export default function Profile() {
       firstName: userProfile?.firstName || "",
       lastName: userProfile?.lastName || "",
       phone: userProfile?.phone || "",
-      address: userProfile?.address || "",
-      city: userProfile?.city || "",
-      district: userProfile?.district || "",
-      postalCode: userProfile?.postalCode || "",
     },
   });
 
@@ -70,10 +67,6 @@ export default function Profile() {
         firstName: userProfile.firstName || "",
         lastName: userProfile.lastName || "",
         phone: userProfile.phone || "",
-        address: userProfile.address || "",
-        city: userProfile.city || "",
-        district: userProfile.district || "",
-        postalCode: userProfile.postalCode || "",
       });
     }
   }, [userProfile, reset]);
@@ -170,10 +163,14 @@ export default function Profile() {
 
           {/* Tabs Navigation */}
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <i className="fas fa-user"></i>
                 Profil Bilgileri
+              </TabsTrigger>
+              <TabsTrigger value="addresses" className="flex items-center gap-2">
+                <i className="fas fa-map-marker-alt"></i>
+                Adreslerim
               </TabsTrigger>
               <TabsTrigger value="orders" className="flex items-center gap-2">
                 <i className="fas fa-shopping-bag"></i>
@@ -248,90 +245,6 @@ export default function Profile() {
 
                     <Separator />
 
-                    {/* Adres Bilgileri */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                        <i className="fas fa-map-marker-alt text-primary"></i>
-                        Adres Bilgileri
-                      </h3>
-                      
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div className="flex items-start space-x-3">
-                          <i className="fas fa-info-circle text-blue-500 mt-1"></i>
-                          <div>
-                            <h4 className="font-semibold text-blue-800 mb-1">Adres Bilgisi</h4>
-                            <p className="text-blue-700 text-sm">
-                              Adres bilgilerinizi eksiksiz doldurmak, siparişlerinizin hızlı ve doğru bir şekilde 
-                              teslim edilmesini sağlar. Telefon numaranız kargo takibi için kullanılacaktır.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <Label htmlFor="city">İl</Label>
-                          <Input
-                            id="city"
-                            type="text"
-                            placeholder="İstanbul"
-                            {...register("city")}
-                            className="mt-1"
-                            data-testid="input-city"
-                          />
-                          {errors.city && (
-                            <p className="text-sm text-destructive mt-1">{errors.city.message}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="district">İlçe</Label>
-                          <Input
-                            id="district"
-                            type="text"
-                            placeholder="Kadıköy"
-                            {...register("district")}
-                            className="mt-1"
-                            data-testid="input-district"
-                          />
-                          {errors.district && (
-                            <p className="text-sm text-destructive mt-1">{errors.district.message}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="postalCode">Posta Kodu</Label>
-                          <Input
-                            id="postalCode"
-                            type="text"
-                            placeholder="34710"
-                            {...register("postalCode")}
-                            className="mt-1"
-                            data-testid="input-postalCode"
-                          />
-                          {errors.postalCode && (
-                            <p className="text-sm text-destructive mt-1">{errors.postalCode.message}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="address">Detaylı Adres</Label>
-                        <Textarea
-                          id="address"
-                          placeholder="Mahalle, sokak, apartman adı, daire no, kapı no gibi detaylı adres bilgilerinizi yazın..."
-                          {...register("address")}
-                          className="mt-1 min-h-[120px]"
-                          data-testid="input-address"
-                        />
-                        {errors.address && (
-                          <p className="text-sm text-destructive mt-1">{errors.address.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <Separator />
-
                     <div className="flex space-x-4 pt-4">
                       <Button
                         type="submit"
@@ -363,6 +276,21 @@ export default function Profile() {
                       </Button>
                     </div>
                   </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Addresses Tab */}
+            <TabsContent value="addresses">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <i className="fas fa-map-marker-alt text-primary"></i>
+                    Adres Yönetimi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AddressList />
                 </CardContent>
               </Card>
             </TabsContent>

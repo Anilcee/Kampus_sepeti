@@ -58,9 +58,16 @@ export default function ProductCard({ product, user }: ProductCardProps) {
         }, 500);
         return;
       }
+      
+      // Try to get error message from response
+      let errorMessage = "Ürün sepete eklenirken bir hata oluştu.";
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as any).message;
+      }
+      
       toast({
         title: "Hata",
-        description: "Ürün sepete eklenirken bir hata oluştu.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -78,6 +85,17 @@ export default function ProductCard({ product, user }: ProductCardProps) {
       }, 500);
       return;
     }
+
+    // Check if product is in stock
+    if (!product.stock || product.stock <= 0) {
+      toast({
+        title: "Stokta Yok",
+        description: "Bu ürün şu anda stokta bulunmamaktadır.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     addToCartMutation.mutate();
   };
 
@@ -132,7 +150,7 @@ export default function ProductCard({ product, user }: ProductCardProps) {
           </div>
         </div>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex text-yellow-400">
             {Array.from({ length: 5 }).map((_, index) => {
               const rating = parseFloat(product.rating || "0");
@@ -151,20 +169,26 @@ export default function ProductCard({ product, user }: ProductCardProps) {
             })}
             <span className="text-gray-600 text-sm ml-1">({product.reviewCount || 0})</span>
           </div>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div></div> {/* Empty div for spacing */}
           
           <Button
             onClick={handleAddToCart}
-            disabled={addToCartMutation.isPending}
-            className="bg-primary text-white hover:bg-blue-700 transition-colors text-sm font-medium"
+            disabled={addToCartMutation.isPending || !product.stock || product.stock <= 0}
+            className="bg-primary text-white hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
             size="sm"
             data-testid={`button-add-to-cart-${product.id}`}
           >
             {addToCartMutation.isPending ? (
               <i className="fas fa-spinner fa-spin mr-1"></i>
+            ) : !product.stock || product.stock <= 0 ? (
+              <i className="fas fa-times mr-1"></i>
             ) : (
               <i className="fas fa-shopping-cart mr-1"></i>
             )}
-            Sepete Ekle
+            {!product.stock || product.stock <= 0 ? "Stokta Yok" : "Sepete Ekle"}
           </Button>
         </div>
       </div>

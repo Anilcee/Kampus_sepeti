@@ -16,9 +16,10 @@ import type { ProductWithCategory, Category } from "@shared/schema";
 interface AdminProductTableProps {
   products: ProductWithCategory[];
   categories: Category[];
+  onEditProduct?: (product: ProductWithCategory) => void;
 }
 
-export default function AdminProductTable({ products, categories }: AdminProductTableProps) {
+export default function AdminProductTable({ products, categories, onEditProduct }: AdminProductTableProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -132,6 +133,7 @@ export default function AdminProductTable({ products, categories }: AdminProduct
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => onEditProduct?.(product)}
                     className="text-primary hover:text-blue-700"
                     data-testid={`button-edit-product-${product.id}`}
                   >

@@ -87,6 +87,26 @@ export default function Product() {
       }, 500);
       return;
     }
+
+    // Check stock availability
+    if (!product?.stock || product.stock <= 0) {
+      toast({
+        title: "Stokta Yok",
+        description: "Bu ürün şu anda stokta bulunmamaktadır.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (quantity > product.stock) {
+      toast({
+        title: "Yetersiz Stok",
+        description: `Maksimum ${product.stock} adet ekleyebilirsiniz.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     addToCartMutation.mutate();
   };
 
@@ -329,14 +349,20 @@ export default function Product() {
                       type="number" 
                       id="quantity"
                       value={quantity} 
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) => {
+                        const newQuantity = Math.max(1, parseInt(e.target.value) || 1);
+                        const maxStock = product?.stock || 0;
+                        setQuantity(Math.min(newQuantity, maxStock));
+                      }}
                       className="w-16 text-center py-2 border-none focus:outline-none"
                       min="1"
+                      max={product?.stock || 1}
                       data-testid="input-quantity"
                     />
                     <button 
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2 text-gray-600 hover:bg-gray-100"
+                      onClick={() => setQuantity(Math.min(quantity + 1, product?.stock || 1))}
+                      disabled={quantity >= (product?.stock || 0)}
+                      className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       data-testid="button-increase-quantity"
                     >
                       +
@@ -347,8 +373,8 @@ export default function Product() {
                 <div className="flex space-x-4">
                   <Button
                     onClick={handleAddToCart}
-                    disabled={addToCartMutation.isPending}
-                    className="flex-1 bg-primary text-white hover:bg-blue-700 transition-colors text-lg py-3"
+                    disabled={addToCartMutation.isPending || !product?.stock || product.stock <= 0 || quantity > product.stock}
+                    className="flex-1 bg-primary text-white hover:bg-blue-700 transition-colors text-lg py-3 disabled:bg-gray-400 disabled:cursor-not-allowed"
                     data-testid="button-add-to-cart"
                   >
                     {addToCartMutation.isPending ? (
