@@ -28,7 +28,9 @@ export default function Home() {
   const { data: products = [], isLoading: productsLoading, error } = useQuery<ProductWithCategory[]>({
     queryKey: ["/api/products", selectedCategory, searchQuery, sortBy],
     queryFn: async ({ queryKey }) => {
-      const [, , categoryId, search, sort] = queryKey;
+      console.log("QueryKey:", queryKey);
+      const [, categoryId, search, sort] = queryKey;
+      console.log("Destructured:", { categoryId, search, sort });
       const params = new URLSearchParams();
       if (categoryId) params.append("categoryId", categoryId as string);
       if (search) params.append("search", search as string);
