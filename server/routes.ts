@@ -679,6 +679,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Alternative endpoint for exam history (compatibility)
+  app.get('/api/exams/gecmis', isAuthenticated, async (req, res) => {
+    try {
+      const sessions = await storage.getStudentExamSessions(req.session.userId!);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error fetching student exam sessions:", error);
+      res.status(500).json({ message: "Sınav geçmişi yüklenirken bir hata oluştu" });
+    }
+  });
+
   // Initialize default categories and products if none exist
   app.get('/api/init', async (req, res) => {
     try {
