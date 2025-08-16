@@ -244,6 +244,24 @@ export default function Admin() {
                                   value={order.status}
                                   className="text-sm border rounded px-2 py-1"
                                   data-testid={`select-order-status-${order.id}`}
+                                  onChange={async (e) => {
+                                    const newStatus = e.target.value;
+                                    try {
+                                      const res = await fetch(`/api/orders/${order.id}/status`, {
+                                          method: "PUT",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ status: newStatus }),
+                                        });
+                                      if (res.ok) {
+                                        toast({ title: "Durum güncellendi", description: `Sipariş durumu: ${newStatus}` });
+                                        window.location.reload();
+                                      } else {
+                                        toast({ title: "Hata", description: "Durum güncellenemedi", variant: "destructive" });
+                                      }
+                                    } catch {
+                                      toast({ title: "Hata", description: "Durum güncellenemedi", variant: "destructive" });
+                                    }
+                                  }}
                                 >
                                   <option value="pending">Bekliyor</option>
                                   <option value="confirmed">Onaylandı</option>

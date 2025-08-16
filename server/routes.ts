@@ -366,6 +366,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/orders/:id', isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.session.userId!;
+      const user = req.session.user!;
+      const orderId = req.params.id;
+      
+      const orderDetails = await storage.getOrderDetails(orderId);
+      
+      if (!orderDetails) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Users can only see their own orders, admins can see all
+      if (user?.role !== 'admin' && orderDetails.order.userId !== userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      res.json(orderDetails);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      res.status(500).json({ message: "Failed to fetch order details" });
+    }
+  });
+
   app.put('/api/orders/:id/status', isAdmin, async (req, res) => {
     try {
 

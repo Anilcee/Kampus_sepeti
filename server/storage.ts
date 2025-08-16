@@ -57,7 +57,8 @@ export interface IStorage {
   
   // Order operations
   createOrder(order: InsertOrder, orderItems: InsertOrderItem[]): Promise<Order>;
-  getOrders(userId?: string): Promise<Order[]>;
+  getOrders(userId?: string): Promise<(Order & { items?: Array<OrderItem & { product: Product }> })[]>;
+  getOrderDetails(orderId: string): Promise<{order: Order, items: Array<OrderItem & {product: Product}>} | null>;
   updateOrderStatus(id: string, status: string): Promise<Order | undefined>;
 }
 
@@ -297,12 +298,91 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  async getOrders(userId?: string): Promise<Order[]> {
+  async getOrders(userId?: string): Promise<(Order & { items?: Array<OrderItem & { product: Product }> })[]> {
+    let ordersQuery;
     if (userId) {
-      return await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+      ordersQuery = await db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+    } else {
+      ordersQuery = await db.select().from(orders).orderBy(desc(orders.createdAt));
     }
     
-    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+    // Her sipariş için ürünleri de getir
+    const ordersWithItems = await Promise.all(
+      ordersQuery.map(async (order) => {
+        const items = await db
+          .select({
+            // OrderItem fields
+            id: orderItems.id,
+            orderId: orderItems.orderId,
+            productId: orderItems.productId,
+            quantity: orderItems.quantity,
+            price: orderItems.price,
+            createdAt: orderItems.createdAt,
+            // Product fields
+            product: products
+          })
+          .from(orderItems)
+          .leftJoin(products, eq(orderItems.productId, products.id))
+          .where(eq(orderItems.orderId, order.id))
+          .limit(3); // Sadece ilk 3 ürünü göster
+
+        const formattedItems = items.map(item => ({
+          id: item.id,
+          orderId: item.orderId,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          createdAt: item.createdAt,
+          product: item.product!
+        }));
+
+        return {
+          ...order,
+          items: formattedItems
+        };
+      })
+    );
+
+    return ordersWithItems;
+  }
+
+  async getOrderDetails(orderId: string): Promise<{order: Order, items: Array<OrderItem & {product: Product}>} | null> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
+    
+    if (!order) {
+      return null;
+    }
+
+    const items = await db
+      .select({
+        // OrderItem fields
+        id: orderItems.id,
+        orderId: orderItems.orderId,
+        productId: orderItems.productId,
+        quantity: orderItems.quantity,
+        price: orderItems.price,
+        createdAt: orderItems.createdAt,
+        // Product fields
+        product: products
+      })
+      .from(orderItems)
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orderItems.orderId, orderId));
+
+    const formattedItems = items.map(item => ({
+      id: item.id,
+      orderId: item.orderId,
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.price,
+      createdAt: item.createdAt,
+      product: item.product!
+    }));
+
+    return {
+      order,
+      items: formattedItems
+    };
   }
 
   async updateOrderStatus(id: string, status: string): Promise<Order | undefined> {
