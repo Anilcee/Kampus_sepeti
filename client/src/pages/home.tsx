@@ -60,7 +60,7 @@ export default function Home() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onCartClick={() => setShowCart(true)}
-          user={user as any}
+          user={user || undefined}
         />
       ) : (
         <SimpleHeader 
@@ -135,7 +135,7 @@ export default function Home() {
               </div>
             </div>
 
-            <ProductGrid products={products} isLoading={productsLoading} user={user} />
+            <ProductGrid products={products} isLoading={productsLoading} user={user || undefined} />
           </div>
         </div>
       </main>
