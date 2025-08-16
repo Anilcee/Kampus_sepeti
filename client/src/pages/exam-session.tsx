@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useRoute, useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,11 +96,28 @@ export default function ExamSession() {
       });
       return await response.json();
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
-      navigate(`/sinav/sonuclar/${params?.sessionId}`);
+      
+      toast({
+        title: "Başarılı",
+        description: "Sınavınız başarıyla teslim edildi. Sonuçlarınız yükleniyor...",
+      });
+      
+      // Invalidate cache to ensure fresh data
+      await queryClient.invalidateQueries({ 
+        queryKey: ["/api/exam-sessions", params?.sessionId] 
+      });
+      await queryClient.invalidateQueries({ 
+        queryKey: ["/api/my-exam-sessions"] 
+      });
+      
+      // Wait a bit to ensure database transaction is committed
+      setTimeout(() => {
+        navigate(`/sinav/sonuclar/${params?.sessionId}`);
+      }, 1000);
     },
     onError: (error: any) => {
       toast({
