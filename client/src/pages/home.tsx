@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import SimpleHeader from "@/components/SimpleHeader";
+import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ProductGrid from "@/components/ProductGrid";
 import ShoppingCart from "@/components/ShoppingCart";
+import { useAuth } from "@/hooks/useAuth";
 import type { ProductWithCategory, Category } from "@shared/schema";
 
 export default function Home() {
+  const { user, isLoading: authLoading } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("recommended");
@@ -22,7 +25,7 @@ export default function Home() {
     queryKey: ["/api/categories"],
   });
 
-  const { data: products = [], isLoading } = useQuery<ProductWithCategory[]>({
+  const { data: products = [], isLoading: productsLoading } = useQuery<ProductWithCategory[]>({
     queryKey: ["/api/products", selectedCategory, searchQuery, sortBy],
     queryFn: ({ queryKey }) => {
       const [, , categoryId, search, sort] = queryKey;
@@ -37,14 +40,23 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SimpleHeader 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onCartClick={() => {
-          // Redirect to login if not authenticated
-          window.location.href = '/api/login';
-        }}
-      />
+      {user ? (
+        <Header 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onCartClick={() => setShowCart(true)}
+          user={user as any}
+        />
+      ) : (
+        <SimpleHeader 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onCartClick={() => {
+            // Redirect to login if not authenticated
+            window.location.href = '/api/login';
+          }}
+        />
+      )}
 
       {/* Breadcrumb */}
       <nav className="bg-gray-100 py-2">
@@ -108,15 +120,28 @@ export default function Home() {
               </div>
             </div>
 
-            <ProductGrid products={products} isLoading={isLoading} />
+            <ProductGrid products={products} isLoading={productsLoading} />
           </div>
         </div>
       </main>
 
-      <ShoppingCart 
-        isOpen={showCart}
-        onClose={() => setShowCart(false)}
-      />
+      {user && (
+        <ShoppingCart 
+          isOpen={showCart}
+          onClose={() => setShowCart(false)}
+        />
+      )}
+
+      {/* Admin Panel Access */}
+      {(user as any)?.role === 'admin' && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <a href="/admin">
+            <button className="bg-accent text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors" data-testid="button-admin-panel">
+              <i className="fas fa-cog text-lg"></i>
+            </button>
+          </a>
+        </div>
+      )}
 
 
       {/* Footer */}

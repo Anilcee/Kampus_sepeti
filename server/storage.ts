@@ -94,35 +94,39 @@ export class DatabaseStorage implements IStorage {
     search?: string;
     sortBy?: string;
   }): Promise<ProductWithCategory[]> {
-    const baseQuery = db
-      .select()
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(eq(products.isActive, true));
+    try {
+      let whereConditions = [eq(products.isActive, true)];
 
-    let conditions = [eq(products.isActive, true)];
+      if (filters?.categoryId) {
+        whereConditions.push(eq(products.categoryId, filters.categoryId));
+      }
 
-    if (filters?.categoryId) {
-      conditions.push(eq(products.categoryId, filters.categoryId));
-    }
-
-    if (filters?.search) {
-      conditions.push(
-        or(
+      if (filters?.search) {
+        const searchCondition = or(
           like(products.name, `%${filters.search}%`),
           like(products.description, `%${filters.search}%`)
-        )
-      );
-    }
+        );
+        if (searchCondition) {
+          whereConditions.push(searchCondition);
+        }
+      }
 
-    const query = baseQuery.where(conditions.length > 1 ? and(...conditions) : conditions[0]);
+      const whereClause = whereConditions.length > 1 ? and(...whereConditions) : whereConditions[0];
 
-    const results = await query;
+      const results = await db
+        .select()
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(whereClause);
     
-    return results.map(result => ({
-      ...result.products,
-      category: result.categories!,
-    }));
+      return results.map((result: any) => ({
+        ...result.products,
+        category: result.categories,
+      }));
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return [];
+    }
   }
 
   async getProduct(id: string): Promise<ProductWithCategory | undefined> {
@@ -136,8 +140,8 @@ export class DatabaseStorage implements IStorage {
     
     return {
       ...result.products,
-      category: result.categories!,
-    };
+      category: result.categories,
+    } as ProductWithCategory;
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
