@@ -274,14 +274,25 @@ export class DatabaseStorage implements IStorage {
   async createOrder(order: InsertOrder, orderItemsData: InsertOrderItem[]): Promise<Order> {
     return await db.transaction(async (tx) => {
       const [newOrder] = await tx.insert(orders).values(order).returning();
-      
+
       const orderItemsWithOrderId = orderItemsData.map(item => ({
         ...item,
         orderId: newOrder.id,
       }));
-      
+
       await tx.insert(orderItems).values(orderItemsWithOrderId);
-      
+
+      // Stok azaltma işlemi (mevcut stok değerini alıp azalt)
+      for (const item of orderItemsData) {
+        const [product] = await tx.select().from(products).where(eq(products.id, item.productId));
+        if (product && typeof product.stock === 'number') {
+          const newStock = product.stock - item.quantity;
+          await tx.update(products)
+            .set({ stock: newStock, updatedAt: new Date() })
+            .where(eq(products.id, item.productId));
+        }
+      }
+
       return newOrder;
     });
   }

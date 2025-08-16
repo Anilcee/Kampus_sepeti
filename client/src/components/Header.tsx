@@ -36,7 +36,7 @@ export default function Header({ searchQuery, onSearchChange, onCartClick, user 
               <img 
                 src="/logo.jpg" 
                 alt="Kampüs Sepeti" 
-                className="h-12 w-auto object-contain"
+                className="h-18 w-auto"
                 data-testid="img-logo"
               />
             </a>
