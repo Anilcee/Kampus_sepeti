@@ -78,7 +78,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Logout route
+  // Logout routes
   app.post('/api/auth/logout', (req, res) => {
     req.session.destroy((err) => {
       if (err) {
@@ -87,6 +87,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.clearCookie('connect.sid');
       res.json({ message: "Çıkış başarılı" });
+    });
+  });
+
+  // GET logout route for compatibility (redirects to home page)
+  app.get('/api/logout', (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+      }
+      res.clearCookie('connect.sid');
+      res.redirect('/');
     });
   });
 
