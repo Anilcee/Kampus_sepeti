@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin, hashPassword, comparePassword } from "./customAuth";
 import { z } from "zod";
-import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, type LoginInput, type RegisterInput } from "@shared/schema";
+import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -17,6 +17,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Update user profile route
+  app.put('/api/auth/profile', isAuthenticated, async (req, res) => {
+    try {
+      const result = updateProfileSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ message: "Geçersiz profil bilgileri" });
+      }
+
+      const userId = req.session.userId!;
+      const updatedUser = await storage.updateUserProfile(userId, result.data);
+      
+      // Update session user
+      req.session.user = updatedUser;
+      
+      res.json({ message: "Profil güncellendi", user: { ...updatedUser, password: undefined } });
+    } catch (error) {
+      console.error("Profile update error:", error);
+      res.status(500).json({ message: "Profil güncellenirken bir hata oluştu" });
     }
   });
 

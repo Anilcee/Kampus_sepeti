@@ -9,6 +9,8 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Admin from "@/pages/admin";
 import Product from "@/pages/product";
+import Profile from "@/pages/profile";
+import Checkout from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/admin" component={Admin} />
       <Route path="/product/:slug" component={Product} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/checkout" component={Checkout} />
       <Route component={NotFound} />
     </Switch>
   );

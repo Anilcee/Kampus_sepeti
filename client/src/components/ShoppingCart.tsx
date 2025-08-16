@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useLocation } from "wouter";
 import type { CartItemWithProduct } from "@shared/schema";
 
 interface ShoppingCartProps {
@@ -20,6 +21,7 @@ const productImages = [
 export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const { data: cartItems = [] } = useQuery<CartItemWithProduct[]>({
     queryKey: ["/api/cart"],
@@ -111,7 +113,8 @@ export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
       });
       return;
     }
-    createOrderMutation.mutate();
+    onClose();
+    setLocation("/checkout");
   };
 
   if (!isOpen) return null;

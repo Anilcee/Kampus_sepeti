@@ -35,6 +35,11 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").default("user").notNull(), // "user" or "admin"
+  phone: varchar("phone"),
+  address: text("address"),
+  city: varchar("city"),
+  district: varchar("district"),
+  postalCode: varchar("postal_code"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -204,6 +209,19 @@ export const registerSchema = insertUserSchema.extend({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+// User profile schema
+export const updateProfileSchema = z.object({
+  firstName: z.string().min(1, "Ad gerekli"),
+  lastName: z.string().min(1, "Soyad gerekli"),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  district: z.string().optional(),
+  postalCode: z.string().optional(),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;

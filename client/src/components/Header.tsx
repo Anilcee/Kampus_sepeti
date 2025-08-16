@@ -62,6 +62,15 @@ export default function Header({ searchQuery, onSearchChange, onCartClick, user 
                 <div className="flex items-center space-x-2">
                   <span className="text-gray-600">Merhaba, {user.firstName || user.email}</span>
                   <Button
+                    onClick={() => window.location.href = '/profile'}
+                    variant="ghost"
+                    size="sm"
+                    data-testid="button-profile"
+                  >
+                    <i className="fas fa-user mr-1"></i>
+                    Profilim
+                  </Button>
+                  <Button
                     onClick={() => window.location.href = '/api/logout'}
                     variant="ghost"
                     size="sm"
