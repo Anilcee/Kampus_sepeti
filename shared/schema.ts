@@ -181,7 +181,9 @@ export const exams = pgTable("exams", {
   totalQuestions: integer("total_questions").notNull(),
   answerKey: jsonb("answer_key").notNull(), // JSON: {"1": "A", "2": "B", ...}
   acquisitions: jsonb("acquisitions"), // JSON: {"1": "Kazanım", ...}
+  acquisitionCodes: jsonb("acquisition_codes"), // JSON: {"1": "21.1.2", ...}
   questionSubjects: jsonb("question_subjects"), // JSON: {"1": "Türkçe", "2": "Matematik", ...}
+  questionTests: jsonb("question_tests"), // JSON: {"1": "TYT Türkçe", "2": "TYT Matematik", ...}
   createdByAdminId: varchar("created_by_admin_id").notNull().references(() => users.id),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),

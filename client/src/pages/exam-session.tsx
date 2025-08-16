@@ -300,42 +300,79 @@ export default function ExamSession() {
                 </p>
               </div>
 
-              {/* Questions Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: session.exam.totalQuestions }, (_, i) => {
-                  const questionNum = (i + 1).toString();
-                  const selectedAnswer = answers[questionNum] || "";
-                  
+              {/* Test Based Question Sections */}
+              {(() => {
+                // Group questions by test
+                const questionsByTest: Record<string, number[]> = {};
+                const testOrder: string[] = [];
+                const questionTests = (session.exam as any).questionTests || {};
+                
+                // Group questions by their test, preserving order
+                for (let i = 1; i <= session.exam.totalQuestions; i++) {
+                  const test = questionTests[i.toString()] || 'Genel';
+                  if (!questionsByTest[test]) {
+                    questionsByTest[test] = [];
+                    testOrder.push(test); // Preserve order of appearance
+                  }
+                  questionsByTest[test].push(i);
+                }
+
+                return testOrder.map(testName => {
+                  const questionNumbers = questionsByTest[testName];
                   return (
-                    <div key={questionNum} className="border border-gray-200 rounded p-3 bg-gray-50">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-bold text-gray-800 text-lg">{questionNum}.</span>
-                        <div className="flex space-x-1">
-                          {["A", "B", "C", "D"].map((option) => {
-                            const isSelected = selectedAnswer === option;
-                            return (
-                              <div key={option} className="flex flex-col items-center">
-                                <span className="text-xs font-medium text-gray-600 mb-1">{option}</span>
-                                <button
-                                  onClick={() => handleAnswerChange(questionNum, option)}
-                                  className={`w-6 h-6 rounded-full border-2 transition-all ${
-                                    isSelected 
-                                      ? "bg-gray-800 border-gray-800" 
-                                      : "bg-white border-gray-400 hover:border-gray-600"
-                                  }`}
-                                  data-testid={`bubble-${questionNum}-${option}`}
-                                >
-                                  {isSelected && <div className="w-full h-full rounded-full bg-gray-800"></div>}
-                                </button>
-                              </div>
-                            );
-                          })}
+                    <div key={testName} className="mb-8">
+                      {/* Test Header */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <h3 className="text-lg font-bold text-blue-800 mb-2">{testName}</h3>
+                        <div className="flex items-center space-x-4 text-sm text-blue-600">
+                          <span>Soru Sayısı: {questionNumbers.length}</span>
+                          <span>
+                            Cevaplanmış: {questionNumbers.filter(q => answers[q.toString()]).length}
+                          </span>
                         </div>
+                      </div>
+
+                      {/* Questions Grid for this test */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                        {questionNumbers.map((questionNum, index) => {
+                          const questionStr = questionNum.toString();
+                          const selectedAnswer = answers[questionStr] || "";
+                          const displayNum = index + 1; // Her testte 1'den başla
+                          
+                          return (
+                            <div key={questionNum} className="border border-gray-200 rounded p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                              <div className="text-center mb-3">
+                                <span className="font-bold text-gray-800 text-lg">{displayNum}.</span>
+                              </div>
+                              <div className="flex justify-center space-x-1">
+                                {["A", "B", "C", "D", "E"].map((option) => {
+                                  const isSelected = selectedAnswer === option;
+                                  return (
+                                    <div key={option} className="flex flex-col items-center">
+                                      <span className="text-xs font-medium text-gray-600 mb-1">{option}</span>
+                                      <button
+                                        onClick={() => handleAnswerChange(questionStr, option)}
+                                        className={`w-5 h-5 rounded-full border-2 transition-all ${
+                                          isSelected 
+                                            ? "bg-gray-800 border-gray-800" 
+                                            : "bg-white border-gray-400 hover:border-gray-600"
+                                        }`}
+                                        data-testid={`bubble-${questionStr}-${option}`}
+                                      >
+                                        {isSelected && <div className="w-full h-full rounded-full bg-gray-800"></div>}
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                });
+              })()}
 
               {/* Form Footer */}
               <div className="mt-6 pt-4 border-t border-gray-200">

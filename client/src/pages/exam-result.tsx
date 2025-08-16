@@ -6,11 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 import type { ExamSessionWithExam } from "@shared/schema";
 
 export default function ExamResult() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [match, params] = useRoute("/sinav/sonuclar/:sessionId");
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (sectionName: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }));
+  };
 
   const { data: session, isLoading } = useQuery<ExamSessionWithExam>({
     queryKey: ["/api/exam-sessions", params?.sessionId],
@@ -217,6 +227,245 @@ export default function ExamResult() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Test Bazlı Analiz */}
+          {(() => {
+            const questionTests = (session.exam as any).questionTests || {};
+            const questionSubjects = (session.exam as any).questionSubjects || {};
+            const acquisitions = (session.exam as any).acquisitions || {};
+            const acquisitionCodes = (session.exam as any).acquisitionCodes || {};
+            const answerKey = session.exam.answerKey || {};
+            
+            // Test bazlı sonuçları grupla
+            const testResults: Record<string, {
+              total: number;
+              correct: number;
+              incorrect: number;
+              empty: number;
+              questions: number[];
+            }> = {};
+            const testOrder: string[] = [];
+
+            for (let i = 1; i <= totalQuestions; i++) {
+              const questionStr = i.toString();
+              const test = questionTests[questionStr] || 'Genel';
+              const studentAnswer = studentAnswers[questionStr] || '';
+              const correctAnswer = answerKey[questionStr] || '';
+              
+              if (!testResults[test]) {
+                testResults[test] = { total: 0, correct: 0, incorrect: 0, empty: 0, questions: [] };
+                testOrder.push(test); // Preserve order of appearance
+              }
+              
+              testResults[test].total++;
+              testResults[test].questions.push(i);
+              
+              if (!studentAnswer || studentAnswer.trim() === '') {
+                testResults[test].empty++;
+              } else if (studentAnswer === correctAnswer) {
+                testResults[test].correct++;
+              } else {
+                testResults[test].incorrect++;
+              }
+            }
+
+            return (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle className="text-xl">Test Bazlı Sonuçlar</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {testOrder.map(testName => {
+                      const results = testResults[testName];
+                      const testPercentage = results.total > 0 ? (results.correct / results.total) * 100 : 0;
+                      const testNet = results.correct - (results.incorrect * 0.25);
+                      
+                      return (
+                        <div key={testName} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-semibold text-lg text-blue-800">{testName}</h4>
+                            <Badge className={`${testPercentage >= 60 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              %{testPercentage.toFixed(1)}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                            <div className="text-center">
+                              <div className="font-bold text-gray-700">{results.total}</div>
+                              <div className="text-gray-600">Toplam</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-bold text-green-600">{results.correct}</div>
+                              <div className="text-gray-600">Doğru</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-bold text-red-600">{results.incorrect}</div>
+                              <div className="text-gray-600">Yanlış</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-bold text-gray-600">{results.empty}</div>
+                              <div className="text-gray-600">Boş</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-bold text-blue-600">{testNet.toFixed(1)}</div>
+                              <div className="text-gray-600">Net</div>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-3">
+                            <Progress value={testPercentage} className="h-2" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
+          {/* Kazanım Bazlı Analiz */}
+          {(() => {
+            const acquisitions = (session.exam as any).acquisitions || {};
+            const acquisitionCodes = (session.exam as any).acquisitionCodes || {};
+            const questionSubjects = (session.exam as any).questionSubjects || {};
+            const answerKey = session.exam.answerKey || {};
+            
+            // Kazanım bazlı sonuçları ders ders grupla
+            const acquisitionsBySubject: Record<string, Record<string, {
+              name: string;
+              code: string;
+              total: number;
+              correct: number;
+              questions: number[];
+            }>> = {};
+
+            for (let i = 1; i <= totalQuestions; i++) {
+              const questionStr = i.toString();
+              const acquisitionName = acquisitions[questionStr];
+              const acquisitionCode = acquisitionCodes[questionStr];
+              const subject = questionSubjects[questionStr] || 'Genel';
+              const studentAnswer = studentAnswers[questionStr] || '';
+              const correctAnswer = answerKey[questionStr] || '';
+              
+              if (acquisitionName && acquisitionCode) {
+                if (!acquisitionsBySubject[subject]) {
+                  acquisitionsBySubject[subject] = {};
+                }
+                
+                const key = `${acquisitionCode}-${acquisitionName}`;
+                
+                if (!acquisitionsBySubject[subject][key]) {
+                  acquisitionsBySubject[subject][key] = {
+                    name: acquisitionName,
+                    code: acquisitionCode,
+                    total: 0,
+                    correct: 0,
+                    questions: []
+                  };
+                }
+                
+                acquisitionsBySubject[subject][key].total++;
+                acquisitionsBySubject[subject][key].questions.push(i);
+                
+                if (studentAnswer === correctAnswer) {
+                  acquisitionsBySubject[subject][key].correct++;
+                }
+              }
+            }
+
+            if (Object.keys(acquisitionsBySubject).length > 0) {
+              return (
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Kazanım Bazlı Analiz (Ders Ders)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {Object.entries(acquisitionsBySubject).map(([subjectName, subjectAcquisitions]) => {
+                        const totalAcquisitions = Object.keys(subjectAcquisitions).length;
+                        const isOpen = openSections[subjectName];
+                        
+                        return (
+                          <Collapsible key={subjectName} open={isOpen} onOpenChange={() => toggleSection(subjectName)}>
+                            <CollapsibleTrigger className="w-full">
+                              <div className="flex items-center justify-between w-full p-4 border border-gray-200 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-1 h-8 bg-blue-500 rounded"></div>
+                                  <div>
+                                    <h4 className="font-semibold text-lg text-blue-800 text-left">{subjectName}</h4>
+                                    <p className="text-sm text-blue-600 text-left">
+                                      {totalAcquisitions} kazanım
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="outline" className="bg-white">
+                                    {totalAcquisitions} kazanım
+                                  </Badge>
+                                  <svg
+                                    className={`w-5 h-5 text-blue-600 transform transition-transform ${
+                                      isOpen ? 'rotate-180' : ''
+                                    }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </CollapsibleTrigger>
+                            
+                            <CollapsibleContent className="mt-2">
+                              <div className="space-y-3 pl-4 border-l-2 border-blue-200">
+                                {Object.entries(subjectAcquisitions).map(([key, result]) => {
+                                  const percentage = result.total > 0 ? (result.correct / result.total) * 100 : 0;
+                                  
+                                  return (
+                                    <div key={key} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <div className="flex-1">
+                                          <div className="font-medium text-sm text-gray-800">
+                                            {result.code}
+                                          </div>
+                                          <div className="text-sm text-gray-600 mt-1">
+                                            {result.name}
+                                          </div>
+                                        </div>
+                                        <div className="text-right ml-4">
+                                          <Badge className={`${percentage >= 60 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            {result.correct}/{result.total}
+                                          </Badge>
+                                          <div className="text-xs text-gray-600 mt-1">
+                                            %{percentage.toFixed(0)}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                      <div className="text-xs text-gray-500">
+                                        Sorular: {result.questions.join(', ')}
+                                      </div>
+                                      
+                                      <div className="mt-2">
+                                        <Progress value={percentage} className="h-1" />
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
+            return null;
+          })()}
 
           {/* Sınav Detayları */}
           <Card className="mb-8">

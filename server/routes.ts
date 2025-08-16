@@ -789,22 +789,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const lowerTr = (v:any) => (v ?? '').toString().toLocaleLowerCase('tr-TR');
       const upperTr = (v:any) => (v ?? '').toString().toLocaleUpperCase('tr-TR');
 
-      // Başlık satırını bul (genelde 2. satır)
-      let headerIndex = 2;
+      // Başlık satırını bul (genelde 1. satır)
+      let headerIndex = 0;
       const headerRow = rows[headerIndex] as string[];
-      const headerLc = (headerRow || []).map(h => lowerTr(h).trim());
+      
+      // Yeni sütun yapısına göre indeksleri sabit tanımla
+      // 1. sütun (0): Kitapçık - geçilecek
+      // 2. sütun (1): Test
+      // 3. sütun (2): Ders  
+      // 4. sütun (3): A Soru
+      // 5. sütun (4): B Soru
+      // 6. sütun (5): Cevap
+      // 7. sütun (6): Kazanım Kodu
+      // 8. sütun (7): Kazanım Adı
+      
+      const idxTest = 1;
+      const idxDers = 2;
+      const idxASoru = 3;
+      const idxBSoru = 4;
+      const idxCevap = 5;
+      const idxKazanimKodu = 6;
+      const idxKazanimAdi = 7;
 
-      // Sütun indexlerini bul
-      const idxKitapcik = headerLc.findIndex(h => /kitap/.test(h));
-      const idxTest = headerLc.findIndex(h => /test/.test(h));
-      const idxDers = headerLc.findIndex(h => /ders/.test(h));
-      const idxASoru = headerLc.findIndex(h => /a\s*soru/.test(h));
-      const idxBSoru = headerLc.findIndex(h => /b\s*soru/.test(h));
-      const idxCevap = headerLc.findIndex(h => /cevap/.test(h));
-      const idxKazanım = headerLc.findIndex(h => /kazanım/.test(h));
-
-      if (idxASoru < 0 || idxCevap < 0) {
-        return res.status(400).json({ message: "Excel'de A Soru ve Cevap sütunları bulunamadı" });
+      if (rows.length < 2) {
+        return res.status(400).json({ message: "Excel dosyasında yeterli veri yok" });
       }
 
       const startIndex = headerIndex + 1;
@@ -812,7 +820,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         canonical: number;
         answer?: string;
         acquisition?: string;
+        acquisitionCode?: string;
         subject?: string;
+        test?: string;
         posByBooklet: Record<string, number>;
       }> = [];
 
@@ -823,43 +833,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return null;
       };
 
+      // Test bazlı organizasyon için
+      const testGroups: Record<string, any[]> = {};
+      const testOrder: string[] = []; // Excel'deki test sırasını korumak için
+
       for (let i = startIndex; i < rows.length; i++) {
         const r = rows[i] as any[];
         if (!r || r.every(c => (c === null || c === undefined || c === ''))) continue;
 
-        // A Soru değeri - her ders için ayrı numaralandırma olabilir
-        const aSoruVal = readInt(r[idxASoru]);
-        if (aSoruVal == null) continue;
+        // Test adı
+        const test = (r[idxTest] ?? '').toString().trim();
+        if (!test) continue;
 
-        // Global sıralı numaralandırma için satır indexini kullan
-        const canonical = i - startIndex + 1;
+        // Ders
+        const subject = (r[idxDers] ?? '').toString().trim();
+
+        // A ve B Soru değerleri
+        const aSoruVal = readInt(r[idxASoru]);
+        const bSoruVal = readInt(r[idxBSoru]);
+        
+        if (aSoruVal == null) continue;
 
         // Cevap
         let answer: string | undefined;
-        if (idxCevap >= 0) {
-          const raw = r[idxCevap];
-          const v = upperTr(raw).trim();
-          if (/^[A-E]$/.test(v)) answer = v;
-        }
+        const raw = r[idxCevap];
+        const v = upperTr(raw).trim();
+        if (/^[A-E]$/.test(v)) answer = v;
 
-        // Kazanım
-        const acquisition = idxKazanım >= 0 ? (r[idxKazanım] ?? '').toString().trim() : undefined;
-
-        // Ders
-        const subject = idxDers >= 0 ? (r[idxDers] ?? '').toString().trim() : undefined;
+        // Kazanım kodu ve adı
+        const acquisitionCode = (r[idxKazanimKodu] ?? '').toString().trim();
+        const acquisition = (r[idxKazanimAdi] ?? '').toString().trim();
 
         // Kitapçık pozisyonları
         const posByBooklet: Record<string, number> = {};
-        if (idxASoru >= 0) {
-          const aPos = readInt(r[idxASoru]);
-          if (aPos != null) posByBooklet['A'] = aPos;
-        }
-        if (idxBSoru >= 0) {
-          const bPos = readInt(r[idxBSoru]);
-          if (bPos != null) posByBooklet['B'] = bPos;
+        if (aSoruVal != null) posByBooklet['A'] = aSoruVal;
+        if (bSoruVal != null) posByBooklet['B'] = bSoruVal;
+
+        // Test grubuna ekle
+        if (!testGroups[test]) {
+          testGroups[test] = [];
+          testOrder.push(test); // Excel'deki sırayı koru
         }
 
-        parsed.push({ canonical, answer, acquisition, subject, posByBooklet });
+        testGroups[test].push({
+          canonical: 0, // Sonradan ayarlanacak
+          answer,
+          acquisition,
+          acquisitionCode,
+          subject,
+          test,
+          posByBooklet,
+          originalRowIndex: i
+        });
+      }
+
+      // Her test için canonical numaraları yeniden düzenle - Excel sırasına göre
+      let globalCanonical = 1;
+      for (const testName of testOrder) {
+        const testQuestions = testGroups[testName];
+        
+        // A kitapçığı sırasına göre sırala
+        testQuestions.sort((a, b) => (a.posByBooklet['A'] || 999) - (b.posByBooklet['A'] || 999));
+        
+        // Canonical numaraları ata
+        testQuestions.forEach((q, idx) => {
+          q.canonical = globalCanonical++;
+          parsed.push(q);
+        });
       }
 
       if (parsed.length === 0) {
@@ -872,12 +912,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Sınav verilerini hazırla
       const answerKey: Record<string, string> = {};
       const acquisitions: Record<string, string> = {};
+      const acquisitionCodes: Record<string, string> = {};
       const questionSubjects: Record<string, string> = {};
+      const questionTests: Record<string, string> = {};
       
       for (const p of parsed) {
         if (p.answer) answerKey[String(p.canonical)] = p.answer;
         if (p.acquisition) acquisitions[String(p.canonical)] = p.acquisition;
+        if (p.acquisitionCode) acquisitionCodes[String(p.canonical)] = p.acquisitionCode;
         if (p.subject) questionSubjects[String(p.canonical)] = p.subject;
+        if (p.test) questionTests[String(p.canonical)] = p.test;
       }
 
       // Sınavı oluştur
@@ -889,9 +933,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalQuestions,
         answerKey,
         acquisitions,
+        acquisitionCodes,
+        questionSubjects,
+        questionTests,
         createdByAdminId: req.session.userId!,
         isActive: true,
-        questionSubjects,
       });
 
       // Kitapçıkları oluştur
