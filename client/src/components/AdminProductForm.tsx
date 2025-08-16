@@ -59,8 +59,8 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
 
       const productData: InsertProduct = {
         ...data,
-        price: data.price,
-        originalPrice: data.originalPrice || data.price,
+        price: parseFloat(data.price).toString(),
+        originalPrice: data.originalPrice ? parseFloat(data.originalPrice).toString() : parseFloat(data.price).toString(),
         discountPercentage,
         slug: data.name.toLowerCase()
           .replace(/[^a-z0-9\s]/g, '')
@@ -89,6 +89,8 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
   });
 
   const onSubmit = (data: FormData) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
     createProductMutation.mutate(data);
   };
 
@@ -294,6 +296,7 @@ export default function AdminProductForm({ categories }: AdminProductFormProps) 
             disabled={createProductMutation.isPending}
             className="bg-primary hover:bg-blue-700"
             data-testid="button-save-product"
+            onClick={() => console.log("Save button clicked!", form.formState.errors)}
           >
             {createProductMutation.isPending ? (
               <i className="fas fa-spinner fa-spin mr-1"></i>
