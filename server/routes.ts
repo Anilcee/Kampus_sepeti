@@ -720,7 +720,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             "11": "C", "12": "D", "13": "A", "14": "B", "15": "C",
             "16": "D", "17": "A", "18": "B", "19": "C", "20": "D"
           },
-          createdByAdminId: "admin-demo-id",
+          createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2",
           isActive: true,
         });
 
@@ -733,7 +733,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           answerKey: Object.fromEntries(
             Array.from({length: 40}, (_, i) => [(i + 1).toString(), ["A", "B", "C", "D"][i % 4]])
           ),
-          createdByAdminId: "admin-demo-id", 
+          createdByAdminId: "540c3948-dd72-40cf-ba11-fdf0eb5d10a2", 
           isActive: true,
         });
 
