@@ -32,11 +32,11 @@ function Router() {
       <Switch>
         <Route path="/" component={ExamList} />
         <Route path="/sinav" component={ExamList} />
-        <Route path="/sinav/:id" component={ExamDetail} />
-        <Route path="/sinav/:examId/oturum/:sessionId" component={ExamSession} />
-        <Route path="/sinav/sonuclar/:sessionId" component={ExamResult} />
-        <Route path="/sinav/gecmis" component={ExamHistory} />
         <Route path="/sinav/admin" component={ExamAdmin} />
+        <Route path="/sinav/gecmis" component={ExamHistory} />
+        <Route path="/sinav/sonuclar/:sessionId" component={ExamResult} />
+        <Route path="/sinav/:examId/oturum/:sessionId" component={ExamSession} />
+        <Route path="/sinav/:id" component={ExamDetail} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route component={NotFound} />
@@ -56,11 +56,11 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       {/* Exam system routes for main domain */}
       <Route path="/sinav" component={ExamList} />
-      <Route path="/sinav/:id" component={ExamDetail} />
-      <Route path="/sinav/:examId/oturum/:sessionId" component={ExamSession} />
-      <Route path="/sinav/sonuclar/:sessionId" component={ExamResult} />
-      <Route path="/sinav/gecmis" component={ExamHistory} />
       <Route path="/sinav/admin" component={ExamAdmin} />
+      <Route path="/sinav/gecmis" component={ExamHistory} />
+      <Route path="/sinav/sonuclar/:sessionId" component={ExamResult} />
+      <Route path="/sinav/:examId/oturum/:sessionId" component={ExamSession} />
+      <Route path="/sinav/:id" component={ExamDetail} />
       <Route component={NotFound} />
     </Switch>
   );

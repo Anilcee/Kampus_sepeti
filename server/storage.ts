@@ -99,6 +99,7 @@ export interface IStorage {
   
   // Exam booklet operations
   createExamBooklet(booklet: InsertExamBooklet): Promise<ExamBooklet>;
+  createOrUpdateExamBooklet(booklet: InsertExamBooklet): Promise<ExamBooklet>;
   getExamBooklets(examId: string): Promise<ExamBooklet[]>;
 }
 
@@ -786,6 +787,33 @@ export class DatabaseStorage implements IStorage {
   async createExamBooklet(bookletData: InsertExamBooklet): Promise<ExamBooklet> {
     const [booklet] = await db.insert(examBooklets).values(bookletData).returning();
     return booklet;
+  }
+
+  async createOrUpdateExamBooklet(bookletData: InsertExamBooklet): Promise<ExamBooklet> {
+    // Check if booklet already exists
+    const [existingBooklet] = await db
+      .select()
+      .from(examBooklets)
+      .where(
+        and(
+          eq(examBooklets.examId, bookletData.examId),
+          eq(examBooklets.bookletCode, bookletData.bookletCode)
+        )
+      );
+
+    if (existingBooklet) {
+      // Update existing booklet
+      const [updatedBooklet] = await db
+        .update(examBooklets)
+        .set({ questionOrder: bookletData.questionOrder })
+        .where(eq(examBooklets.id, existingBooklet.id))
+        .returning();
+      return updatedBooklet;
+    } else {
+      // Create new booklet
+      const [newBooklet] = await db.insert(examBooklets).values(bookletData).returning();
+      return newBooklet;
+    }
   }
 
   async getExamBooklets(examId: string): Promise<ExamBooklet[]> {

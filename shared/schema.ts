@@ -180,6 +180,8 @@ export const exams = pgTable("exams", {
   durationMinutes: integer("duration_minutes").notNull(),
   totalQuestions: integer("total_questions").notNull(),
   answerKey: jsonb("answer_key").notNull(), // JSON: {"1": "A", "2": "B", ...}
+  acquisitions: jsonb("acquisitions"), // JSON: {"1": "Kazanım", ...}
+  questionSubjects: jsonb("question_subjects"), // JSON: {"1": "Türkçe", "2": "Matematik", ...}
   createdByAdminId: varchar("created_by_admin_id").notNull().references(() => users.id),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
@@ -338,6 +340,14 @@ export const insertExamSchema = createInsertSchema(exams).omit({
   updatedAt: true,
 });
 
+// Excel upload schema for answer keys
+export const uploadExcelAnswerKeySchema = z.object({
+  examId: z.string().min(1, "Sınav ID gerekli"),
+  bookletType: z.enum(["A", "B", "C", "D"], {
+    required_error: "Kitapçık türü seçiniz",
+  }),
+});
+
 export const insertExamBookletSchema = createInsertSchema(examBooklets).omit({
   id: true,
   createdAt: true,
@@ -358,12 +368,12 @@ export const startExamSchema = z.object({
 export const submitAnswerSchema = z.object({
   sessionId: z.string().min(1, "Oturum ID gerekli"),
   questionNumber: z.number().min(1).max(200),
-  answer: z.enum(["A", "B", "C", "D", ""]).optional(),
+  answer: z.enum(["A", "B", "C", "D", "E", ""]).optional(),
 });
 
 export const submitExamSchema = z.object({
   sessionId: z.string().min(1, "Oturum ID gerekli"),
-  studentAnswers: z.record(z.string(), z.enum(["A", "B", "C", "D", ""])),
+  studentAnswers: z.record(z.string(), z.enum(["A", "B", "C", "D", "E", ""])),
 });
 
 // EXAM TYPES
@@ -376,6 +386,7 @@ export type InsertExamSession = z.infer<typeof insertExamSessionSchema>;
 export type StartExamInput = z.infer<typeof startExamSchema>;
 export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
 export type SubmitExamInput = z.infer<typeof submitExamSchema>;
+export type UploadExcelAnswerKeyInput = z.infer<typeof uploadExcelAnswerKeySchema>;
 
 export type ExamWithBooklets = Exam & { booklets: ExamBooklet[] };
 export type ExamSessionWithExam = ExamSession & { exam: Exam };

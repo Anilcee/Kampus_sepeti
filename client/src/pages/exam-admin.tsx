@@ -38,19 +38,50 @@ export default function ExamAdmin() {
     answerKey: {},
   });
   const [answerKeyText, setAnswerKeyText] = useState("");
+  const [selectedExamForUpload, setSelectedExamForUpload] = useState<string>("");
+  const [selectedBookletType, setSelectedBookletType] = useState<string>("");
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
 
   // Check authorization
   const isAuthorized = isAuthenticated && (user as any)?.role === 'admin';
 
+  console.log("ExamAdmin - isAuthorized:", isAuthorized);
+  console.log("ExamAdmin - user:", user);
+
   const { data: exams = [] } = useQuery<ExamWithBooklets[]>({
-    queryKey: ["/api/exams"],
+    queryKey: ["exams-admin-list"],
+    queryFn: async () => {
+      const response = await fetch("/api/exams", { credentials: "include" });
+      if (!response.ok) {
+        console.error("Sınavlar yüklenemedi, ama panel açılsın");
+        return []; // Hata olsa bile boş array döndür, panel açılsın
+      }
+      return response.json();
+    },
     enabled: isAuthorized,
+    onSuccess: (data) => console.log("Exams loaded:", data),
+    onError: (error) => {
+      console.error("Exams error:", error);
+      // Hata olsa bile devam et
+    },
   });
 
   const { data: allSessions = [] } = useQuery<ExamSessionWithExam[]>({
-    queryKey: ["/api/my-exam-sessions"],
+    queryKey: ["sessions-admin-list"],
+    queryFn: async () => {
+      const response = await fetch("/api/my-exam-sessions", { credentials: "include" });
+      if (!response.ok) {
+        console.error("Oturumlar yüklenemedi");
+        return [];
+      }
+      return response.json();
+    },
     enabled: isAuthorized,
     select: (data) => data.filter(session => session.status === 'completed'),
+    onSuccess: (data) => console.log("Sessions loaded:", data),
+    onError: (error) => {
+      console.error("Sessions error:", error);
+    },
   });
 
   const createExamMutation = useMutation({
@@ -62,7 +93,7 @@ export default function ExamAdmin() {
         title: "Başarılı",
         description: "Sınav başarıyla oluşturuldu.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/exams"] });
+      queryClient.invalidateQueries({ queryKey: ["exams-admin-list"] });
       resetForm();
     },
     onError: (error: any) => {
@@ -83,7 +114,7 @@ export default function ExamAdmin() {
         title: "Başarılı",
         description: "Sınav başarıyla güncellendi.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/exams"] });
+      queryClient.invalidateQueries({ queryKey: ["exams-admin-list"] });
       setEditingExam(null);
       resetForm();
       setActiveTab("exams");
@@ -106,12 +137,49 @@ export default function ExamAdmin() {
         title: "Başarılı",
         description: "Sınav başarıyla silindi.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/exams"] });
+      queryClient.invalidateQueries({ queryKey: ["exams-admin-list"] });
     },
     onError: (error: any) => {
       toast({
         title: "Hata",
         description: error?.message || "Sınav silinirken bir hata oluştu",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const uploadExcelMutation = useMutation({
+    mutationFn: async ({ examId, bookletType, file }: { examId: string; bookletType: string; file: File }) => {
+      const formData = new FormData();
+      formData.append('excelFile', file);
+      formData.append('bookletType', bookletType);
+      
+      const response = await fetch(`/api/exams/${examId}/upload-answer-key`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Excel dosyası yüklenirken hata oluştu');
+      }
+      
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Başarılı",
+        description: `Cevap anahtarı başarıyla yüklendi. ${data.answerCount} soru, ${data.acquisitionCount} kazanım eklendi.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["exams-admin-list"] });
+      setUploadFile(null);
+      setSelectedExamForUpload("");
+      setSelectedBookletType("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Hata",
+        description: error?.message || "Excel dosyası yüklenirken bir hata oluştu",
         variant: "destructive",
       });
     },
@@ -195,6 +263,23 @@ export default function ExamAdmin() {
     } else {
       createExamMutation.mutate(examData);
     }
+  };
+
+  const handleFileUpload = () => {
+    if (!selectedExamForUpload || !selectedBookletType || !uploadFile) {
+      toast({
+        title: "Eksik Bilgi",
+        description: "Lütfen sınav, kitapçık türü seçin ve Excel dosyası yükleyin.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    uploadExcelMutation.mutate({
+      examId: selectedExamForUpload,
+      bookletType: selectedBookletType,
+      file: uploadFile,
+    });
   };
 
   if (authLoading) {
@@ -334,7 +419,7 @@ export default function ExamAdmin() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="exams" data-testid="tab-manage-exams">
               <i className="fas fa-list mr-2"></i>
               Sınav Listesi
@@ -342,6 +427,10 @@ export default function ExamAdmin() {
             <TabsTrigger value="create" data-testid="tab-create-exam">
               <i className="fas fa-plus mr-2"></i>
               {editingExam ? "Sınav Düzenle" : "Yeni Sınav"}
+            </TabsTrigger>
+            <TabsTrigger value="upload-excel" data-testid="tab-upload-excel">
+              <i className="fas fa-file-excel mr-2"></i>
+              Excel Yükle
             </TabsTrigger>
             <TabsTrigger value="statistics" data-testid="tab-statistics">
               <i className="fas fa-chart-bar mr-2"></i>
@@ -556,6 +645,65 @@ export default function ExamAdmin() {
                     )}
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Upload Excel Answer Key */}
+          <TabsContent value="upload-excel">
+            <Card>
+              <CardHeader>
+                <CardTitle>Excel ile Yeni Sınav Oluştur</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">Excel Dosya Formatı:</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Sütunlar örneği: <strong>Kitapçık</strong>, <strong>Deneme Adı</strong>, <strong>Ders</strong>, <strong>Soru No</strong>, …, <strong>Cevap</strong>, <strong>Kazanım</strong></li>
+                    <li>• Cevaplar: A, B, C, D, E desteklenir</li>
+                    <li>• İlk satır başlıktır</li>
+                  </ul>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="new-exam-name">Sınav Adı *</Label>
+                    <Input id="new-exam-name" value={examForm.name} onChange={(e)=>setExamForm({...examForm, name: e.target.value})} placeholder="Örnek: TYT Türkçe Denemesi" />
+                  </div>
+                  <div>
+                    <Label htmlFor="duration">Süre (Dakika) *</Label>
+                    <Input id="duration" type="number" value={examForm.durationMinutes} onChange={(e)=>setExamForm({...examForm, durationMinutes: parseInt(e.target.value)||0})} placeholder="120" />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="excel-file">Excel Dosyası *</Label>
+                  <Input id="excel-file" type="file" accept=".xlsx,.xls" onChange={(e)=>setUploadFile(e.target.files?.[0]||null)} className="cursor-pointer" data-testid="input-excel-file" />
+                  {uploadFile && <p className="text-sm text-gray-600 mt-1">Seçilen dosya: {uploadFile.name}</p>}
+                </div>
+
+                <Button onClick={()=>{
+                  if (!examForm.name || !examForm.durationMinutes || !uploadFile) {
+                    toast({ title: "Eksik Bilgi", description: "Sınav adı, süre ve Excel dosyası zorunludur.", variant: "destructive" });
+                    return;
+                  }
+                  const formData = new FormData();
+                  formData.append('excelFile', uploadFile);
+                  formData.append('name', examForm.name);
+                  formData.append('durationMinutes', String(examForm.durationMinutes));
+                  fetch('/api/exams/upload', { method: 'POST', body: formData, credentials: 'include' })
+                    .then(async (r)=>{ if(!r.ok){ const e=await r.json().catch(()=>({message:'Hata'})); throw new Error(e.message||'Hata'); } return r.json(); })
+                    .then((data)=>{
+                      toast({ title: 'Başarılı', description: `Sınav oluşturuldu. Soru sayısı: ${data.totalQuestions}` });
+                      queryClient.invalidateQueries({ queryKey: ['exams-admin-list'] });
+                      setUploadFile(null);
+                      resetForm();
+                    })
+                    .catch((e)=> toast({ title: 'Hata', description: e.message, variant: 'destructive' }));
+                }} disabled={uploadExcelMutation.isPending} className="bg-green-600 hover:bg-green-700 w-full" data-testid="button-upload-excel">
+                  <i className="fas fa-upload mr-2"></i>
+                  Excel'den Sınav Oluştur
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>

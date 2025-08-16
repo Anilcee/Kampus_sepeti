@@ -3,7 +3,27 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin, hashPassword, comparePassword } from "./customAuth";
 import { z } from "zod";
-import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, insertAddressSchema, insertExamSchema, startExamSchema, submitExamSchema, submitAnswerSchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
+import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, insertAddressSchema, insertExamSchema, startExamSchema, submitExamSchema, submitAnswerSchema, uploadExcelAnswerKeySchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
+import * as XLSX from 'xlsx';
+import multer from 'multer';
+
+// Configure multer for file uploads
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+        file.mimetype === 'application/vnd.ms-excel' ||
+        file.originalname.endsWith('.xlsx') ||
+        file.originalname.endsWith('.xls')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Sadece Excel dosyaları (.xlsx, .xls) kabul edilir'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -665,6 +685,250 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error submitting exam:", error);
       res.status(500).json({ message: "Sınav teslim edilirken bir hata oluştu" });
+    }
+  });
+
+  // Upload Excel answer key (admin only)
+  app.post('/api/exams/:id/upload-answer-key', isAdmin, upload.single('excelFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Excel dosyası yüklenmemiş" });
+      }
+
+      const examId = req.params.id;
+      const bookletType = req.body.bookletType;
+
+      if (!bookletType || !['A', 'B', 'C', 'D'].includes(bookletType)) {
+        return res.status(400).json({ message: "Geçerli bir kitapçık türü seçiniz (A, B, C, D)" });
+      }
+
+      // Parse Excel file
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      // Parse answer key and acquisitions from Excel
+      const answerKey: Record<string, string> = {};
+      const acquisitions: Record<string, string> = {};
+      
+      // Skip header row, start from row 1 (index 1)
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i] as any[];
+        if (row && row.length >= 3) {
+          const questionNum = row[0]?.toString().trim();
+          const answer = row[1]?.toString().trim().toUpperCase();
+          const acquisition = row[2]?.toString().trim();
+          
+          if (questionNum && answer && ['A', 'B', 'C', 'D'].includes(answer)) {
+            answerKey[questionNum] = answer;
+            if (acquisition) {
+              acquisitions[questionNum] = acquisition;
+            }
+          }
+        }
+      }
+
+      if (Object.keys(answerKey).length === 0) {
+        return res.status(400).json({ 
+          message: "Excel dosyasında geçerli cevap anahtarı bulunamadı. Format: Soru No | Cevap | Kazanım" 
+        });
+      }
+
+      // Update exam with new answer key and acquisitions
+      const updatedExam = await storage.updateExam(examId, {
+        answerKey,
+        acquisitions,
+        totalQuestions: Object.keys(answerKey).length
+      });
+
+      if (!updatedExam) {
+        return res.status(404).json({ message: "Sınav bulunamadı" });
+      }
+
+      // Create or update booklet
+      await storage.createOrUpdateExamBooklet({
+        examId,
+        bookletCode: bookletType,
+        questionOrder: Object.keys(answerKey).map(q => parseInt(q)).sort((a, b) => a - b)
+      });
+
+      res.json({ 
+        message: "Cevap anahtarı başarıyla yüklendi",
+        answerCount: Object.keys(answerKey).length,
+        acquisitionCount: Object.keys(acquisitions).length
+      });
+
+    } catch (error) {
+      console.error("Error uploading Excel answer key:", error);
+      res.status(500).json({ message: "Excel dosyası yüklenirken bir hata oluştu" });
+    }
+  });
+
+  // Upload Excel and create a single exam (admin only)
+  app.post('/api/exams/upload', isAdmin, upload.single('excelFile'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Excel dosyası yüklenmemiş" });
+      }
+
+      const name = (req.body.name || '').toString().trim();
+      const durationMinutes = parseInt(req.body.durationMinutes || '0', 10) || 0;
+      if (!name || !durationMinutes) {
+        return res.status(400).json({ message: "Sınav adı ve süre zorunludur" });
+      }
+
+      const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const ws = workbook.Sheets[sheetName];
+      const rows: any[] = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      if (!rows || rows.length < 3) {
+        return res.status(400).json({ message: "Excel sayfası boş veya geçersiz" });
+      }
+
+      const lowerTr = (v:any) => (v ?? '').toString().toLocaleLowerCase('tr-TR');
+      const upperTr = (v:any) => (v ?? '').toString().toLocaleUpperCase('tr-TR');
+
+      // Başlık satırını bul (genelde 2. satır)
+      let headerIndex = 2;
+      const headerRow = rows[headerIndex] as string[];
+      const headerLc = (headerRow || []).map(h => lowerTr(h).trim());
+
+      // Sütun indexlerini bul
+      const idxKitapcik = headerLc.findIndex(h => /kitap/.test(h));
+      const idxTest = headerLc.findIndex(h => /test/.test(h));
+      const idxDers = headerLc.findIndex(h => /ders/.test(h));
+      const idxASoru = headerLc.findIndex(h => /a\s*soru/.test(h));
+      const idxBSoru = headerLc.findIndex(h => /b\s*soru/.test(h));
+      const idxCevap = headerLc.findIndex(h => /cevap/.test(h));
+      const idxKazanım = headerLc.findIndex(h => /kazanım/.test(h));
+
+      if (idxASoru < 0 || idxCevap < 0) {
+        return res.status(400).json({ message: "Excel'de A Soru ve Cevap sütunları bulunamadı" });
+      }
+
+      const startIndex = headerIndex + 1;
+      const parsed: Array<{
+        canonical: number;
+        answer?: string;
+        acquisition?: string;
+        subject?: string;
+        posByBooklet: Record<string, number>;
+      }> = [];
+
+      const readInt = (val: any): number | null => {
+        if (typeof val === 'number' && Number.isFinite(val)) return Math.trunc(val);
+        const s = (val ?? '').toString().trim();
+        if (/^\d{1,3}$/.test(s)) return parseInt(s, 10);
+        return null;
+      };
+
+      for (let i = startIndex; i < rows.length; i++) {
+        const r = rows[i] as any[];
+        if (!r || r.every(c => (c === null || c === undefined || c === ''))) continue;
+
+        // A Soru değeri - her ders için ayrı numaralandırma olabilir
+        const aSoruVal = readInt(r[idxASoru]);
+        if (aSoruVal == null) continue;
+
+        // Global sıralı numaralandırma için satır indexini kullan
+        const canonical = i - startIndex + 1;
+
+        // Cevap
+        let answer: string | undefined;
+        if (idxCevap >= 0) {
+          const raw = r[idxCevap];
+          const v = upperTr(raw).trim();
+          if (/^[A-E]$/.test(v)) answer = v;
+        }
+
+        // Kazanım
+        const acquisition = idxKazanım >= 0 ? (r[idxKazanım] ?? '').toString().trim() : undefined;
+
+        // Ders
+        const subject = idxDers >= 0 ? (r[idxDers] ?? '').toString().trim() : undefined;
+
+        // Kitapçık pozisyonları
+        const posByBooklet: Record<string, number> = {};
+        if (idxASoru >= 0) {
+          const aPos = readInt(r[idxASoru]);
+          if (aPos != null) posByBooklet['A'] = aPos;
+        }
+        if (idxBSoru >= 0) {
+          const bPos = readInt(r[idxBSoru]);
+          if (bPos != null) posByBooklet['B'] = bPos;
+        }
+
+        parsed.push({ canonical, answer, acquisition, subject, posByBooklet });
+      }
+
+      if (parsed.length === 0) {
+        return res.status(400).json({ message: "Excel'de geçerli soru bulunamadı" });
+      }
+
+      // Artık kanonik numaralar zaten 1..N sıralı
+      const totalQuestions = parsed.length;
+
+      // Sınav verilerini hazırla
+      const answerKey: Record<string, string> = {};
+      const acquisitions: Record<string, string> = {};
+      const questionSubjects: Record<string, string> = {};
+      
+      for (const p of parsed) {
+        if (p.answer) answerKey[String(p.canonical)] = p.answer;
+        if (p.acquisition) acquisitions[String(p.canonical)] = p.acquisition;
+        if (p.subject) questionSubjects[String(p.canonical)] = p.subject;
+      }
+
+      // Sınavı oluştur
+      const exam = await storage.createExam({
+        name,
+        description: req.body.description || '',
+        subject: 'Karma',
+        durationMinutes,
+        totalQuestions,
+        answerKey,
+        acquisitions,
+        createdByAdminId: req.session.userId!,
+        isActive: true,
+        questionSubjects,
+      });
+
+      // Kitapçıkları oluştur
+      const usedBooklets = new Set<string>();
+      parsed.forEach(p => Object.keys(p.posByBooklet).forEach(c => usedBooklets.add(c)));
+
+      if (usedBooklets.size === 0) {
+        await storage.createOrUpdateExamBooklet({
+          examId: exam.id,
+          bookletCode: 'A',
+          questionOrder: Array.from({length: totalQuestions}, (_, i) => i + 1),
+        });
+      } else {
+        for (const code of Array.from(usedBooklets).sort()) {
+          const withPos = parsed
+            .filter(p => typeof p.posByBooklet[code] === 'number')
+            .sort((a,b) => (a.posByBooklet[code] || 999) - (b.posByBooklet[code] || 999));
+          const order = withPos.map(p => p.canonical);
+          const finalOrder = order.length > 0 ? order : Array.from({length: totalQuestions}, (_, i) => i + 1);
+          await storage.createOrUpdateExamBooklet({
+            examId: exam.id,
+            bookletCode: code,
+            questionOrder: finalOrder,
+          });
+        }
+      }
+
+      res.status(201).json({ 
+        message: "Sınav oluşturuldu", 
+        examId: exam.id, 
+        totalQuestions, 
+        booklets: Array.from(usedBooklets),
+        answerCount: Object.keys(answerKey).length
+      });
+    } catch (error) {
+      console.error('Error uploading exam via Excel:', error);
+      res.status(500).json({ message: "Excel'den sınav oluşturulurken hata oluştu" });
     }
   });
 
