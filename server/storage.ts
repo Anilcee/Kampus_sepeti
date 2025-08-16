@@ -6,6 +6,9 @@ import {
   orders,
   orderItems,
   addresses,
+  exams,
+  examBooklets,
+  examSessions,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -23,6 +26,15 @@ import {
   type ProductWithCategory,
   type Address,
   type InsertAddress,
+  type Exam,
+  type InsertExam,
+  type ExamBooklet,
+  type InsertExamBooklet,
+  type ExamSession,
+  type InsertExamSession,
+  type ExamWithBooklets,
+  type ExamSessionWithExam,
+  type ExamResult,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, or } from "drizzle-orm";
@@ -70,6 +82,24 @@ export interface IStorage {
   getOrders(userId?: string): Promise<(Order & { items?: Array<OrderItem & { product: Product }> })[]>;
   getOrderDetails(orderId: string): Promise<{order: Order, items: Array<OrderItem & {product: Product}>} | null>;
   updateOrderStatus(id: string, status: string): Promise<Order | undefined>;
+  
+  // Exam operations
+  getExams(): Promise<ExamWithBooklets[]>;
+  getExam(id: string): Promise<ExamWithBooklets | undefined>;
+  createExam(exam: InsertExam): Promise<Exam>;
+  updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined>;
+  deleteExam(id: string): Promise<boolean>;
+  
+  // Exam session operations
+  startExamSession(examId: string, studentId: string, bookletType: string): Promise<ExamSession>;
+  getExamSession(sessionId: string): Promise<ExamSessionWithExam | undefined>;
+  updateExamSession(sessionId: string, answers: Record<string, string>): Promise<ExamSession | undefined>;
+  submitExamSession(sessionId: string, answers: Record<string, string>): Promise<ExamResult>;
+  getStudentExamSessions(studentId: string): Promise<ExamSessionWithExam[]>;
+  
+  // Exam booklet operations
+  createExamBooklet(booklet: InsertExamBooklet): Promise<ExamBooklet>;
+  getExamBooklets(examId: string): Promise<ExamBooklet[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -551,6 +581,219 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orders.id, id))
       .returning();
     return updatedOrder;
+  }
+
+  // EXAM OPERATIONS
+  async getExams(): Promise<ExamWithBooklets[]> {
+    const results = await db
+      .select()
+      .from(exams)
+      .leftJoin(examBooklets, eq(exams.id, examBooklets.examId))
+      .where(eq(exams.isActive, true))
+      .orderBy(desc(exams.createdAt));
+
+    const examMap = new Map<string, ExamWithBooklets>();
+    
+    results.forEach((row) => {
+      const exam = row.exams;
+      const booklet = row.exam_booklets;
+      
+      if (!examMap.has(exam.id)) {
+        examMap.set(exam.id, { ...exam, booklets: [] });
+      }
+      
+      if (booklet) {
+        examMap.get(exam.id)!.booklets.push(booklet);
+      }
+    });
+    
+    return Array.from(examMap.values());
+  }
+
+  async getExam(id: string): Promise<ExamWithBooklets | undefined> {
+    const results = await db
+      .select()
+      .from(exams)
+      .leftJoin(examBooklets, eq(exams.id, examBooklets.examId))
+      .where(and(eq(exams.id, id), eq(exams.isActive, true)));
+
+    if (results.length === 0) return undefined;
+
+    const exam = results[0].exams;
+    const booklets = results
+      .filter(row => row.exam_booklets)
+      .map(row => row.exam_booklets!);
+
+    return { ...exam, booklets };
+  }
+
+  async createExam(examData: InsertExam): Promise<Exam> {
+    const [exam] = await db.insert(exams).values(examData).returning();
+    return exam;
+  }
+
+  async updateExam(id: string, examData: Partial<InsertExam>): Promise<Exam | undefined> {
+    const [updatedExam] = await db
+      .update(exams)
+      .set({ ...examData, updatedAt: new Date() })
+      .where(eq(exams.id, id))
+      .returning();
+    return updatedExam;
+  }
+
+  async deleteExam(id: string): Promise<boolean> {
+    const [updatedExam] = await db
+      .update(exams)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(exams.id, id))
+      .returning();
+    return !!updatedExam;
+  }
+
+  // EXAM SESSION OPERATIONS
+  async startExamSession(examId: string, studentId: string, bookletType: string): Promise<ExamSession> {
+    // Check if student already has an active session for this exam
+    const existingSession = await db
+      .select()
+      .from(examSessions)
+      .where(
+        and(
+          eq(examSessions.examId, examId),
+          eq(examSessions.studentId, studentId),
+          eq(examSessions.status, "started")
+        )
+      )
+      .limit(1);
+
+    if (existingSession.length > 0) {
+      return existingSession[0];
+    }
+
+    const [session] = await db
+      .insert(examSessions)
+      .values({
+        examId,
+        studentId,
+        bookletType,
+        status: "started",
+        studentAnswers: {},
+      })
+      .returning();
+    
+    return session;
+  }
+
+  async getExamSession(sessionId: string): Promise<ExamSessionWithExam | undefined> {
+    const [result] = await db
+      .select()
+      .from(examSessions)
+      .leftJoin(exams, eq(examSessions.examId, exams.id))
+      .where(eq(examSessions.id, sessionId));
+
+    if (!result) return undefined;
+
+    return {
+      ...result.exam_sessions,
+      exam: result.exams!,
+    };
+  }
+
+  async updateExamSession(sessionId: string, answers: Record<string, string>): Promise<ExamSession | undefined> {
+    const [updatedSession] = await db
+      .update(examSessions)
+      .set({ 
+        studentAnswers: answers,
+      })
+      .where(eq(examSessions.id, sessionId))
+      .returning();
+    
+    return updatedSession;
+  }
+
+  async submitExamSession(sessionId: string, answers: Record<string, string>): Promise<ExamResult> {
+    return await db.transaction(async (tx) => {
+      // Get session with exam data
+      const [sessionWithExam] = await tx
+        .select()
+        .from(examSessions)
+        .leftJoin(exams, eq(examSessions.examId, exams.id))
+        .where(eq(examSessions.id, sessionId));
+
+      if (!sessionWithExam) {
+        throw new Error("Session not found");
+      }
+
+      const session = sessionWithExam.exam_sessions;
+      const exam = sessionWithExam.exams!;
+      
+      // Calculate score
+      const correctAnswers = Object.entries(answers).filter(
+        ([question, answer]) => {
+          const correctAnswer = (exam.answerKey as Record<string, string>)[question];
+          return answer && answer === correctAnswer;
+        }
+      ).length;
+      
+      const totalQuestions = exam.totalQuestions;
+      const incorrectAnswers = Object.entries(answers).filter(
+        ([question, answer]) => {
+          const correctAnswer = (exam.answerKey as Record<string, string>)[question];
+          return answer && answer !== correctAnswer;
+        }
+      ).length;
+      
+      const emptyAnswers = totalQuestions - Object.values(answers).filter(a => a && a.trim() !== "").length;
+      const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
+      // Update session
+      const [updatedSession] = await tx
+        .update(examSessions)
+        .set({
+          studentAnswers: answers,
+          score: correctAnswers,
+          percentage: percentage.toString(),
+          status: "completed",
+          completedAt: new Date(),
+        })
+        .where(eq(examSessions.id, sessionId))
+        .returning();
+
+      return {
+        session: updatedSession,
+        exam,
+        correctAnswers,
+        incorrectAnswers,
+        emptyAnswers,
+      };
+    });
+  }
+
+  async getStudentExamSessions(studentId: string): Promise<ExamSessionWithExam[]> {
+    const results = await db
+      .select()
+      .from(examSessions)
+      .leftJoin(exams, eq(examSessions.examId, exams.id))
+      .where(eq(examSessions.studentId, studentId))
+      .orderBy(desc(examSessions.createdAt));
+
+    return results.map(result => ({
+      ...result.exam_sessions,
+      exam: result.exams!,
+    }));
+  }
+
+  // EXAM BOOKLET OPERATIONS
+  async createExamBooklet(bookletData: InsertExamBooklet): Promise<ExamBooklet> {
+    const [booklet] = await db.insert(examBooklets).values(bookletData).returning();
+    return booklet;
+  }
+
+  async getExamBooklets(examId: string): Promise<ExamBooklet[]> {
+    return await db
+      .select()
+      .from(examBooklets)
+      .where(eq(examBooklets.examId, examId))
+      .orderBy(examBooklets.bookletCode);
   }
 }
 

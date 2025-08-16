@@ -13,7 +13,38 @@ import Profile from "@/pages/profile";
 import Checkout from "@/pages/checkout";
 import NotFound from "@/pages/not-found";
 
+// Exam System Pages
+import ExamList from "@/pages/exam-list";
+import ExamDetail from "@/pages/exam-detail";
+import ExamSession from "@/pages/exam-session";
+import ExamResult from "@/pages/exam-result";
+import ExamHistory from "@/pages/exam-history";
+import ExamAdmin from "@/pages/exam-admin";
+
 function Router() {
+  // Check if we're on the exam subdomain
+  const isExamSubdomain = window.location.hostname.startsWith('sinav.') || 
+                         window.location.pathname.startsWith('/sinav');
+
+  if (isExamSubdomain || window.location.pathname.startsWith('/sinav')) {
+    // Exam System Routes
+    return (
+      <Switch>
+        <Route path="/" component={ExamList} />
+        <Route path="/sinav" component={ExamList} />
+        <Route path="/sinav/:id" component={ExamDetail} />
+        <Route path="/sinav/:examId/oturum/:sessionId" component={ExamSession} />
+        <Route path="/sinav/sonuclar/:sessionId" component={ExamResult} />
+        <Route path="/sinav/gecmis" component={ExamHistory} />
+        <Route path="/sinav/admin" component={ExamAdmin} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
+  // Main E-commerce Site Routes
   return (
     <Switch>
       <Route path="/" component={Home} />
@@ -23,6 +54,13 @@ function Router() {
       <Route path="/product/:slug" component={Product} />
       <Route path="/profile" component={Profile} />
       <Route path="/checkout" component={Checkout} />
+      {/* Exam system routes for main domain */}
+      <Route path="/sinav" component={ExamList} />
+      <Route path="/sinav/:id" component={ExamDetail} />
+      <Route path="/sinav/:examId/oturum/:sessionId" component={ExamSession} />
+      <Route path="/sinav/sonuclar/:sessionId" component={ExamResult} />
+      <Route path="/sinav/gecmis" component={ExamHistory} />
+      <Route path="/sinav/admin" component={ExamAdmin} />
       <Route component={NotFound} />
     </Switch>
   );

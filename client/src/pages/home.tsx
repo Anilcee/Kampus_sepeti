@@ -60,7 +60,7 @@ export default function Home() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onCartClick={() => setShowCart(true)}
-          user={user || undefined}
+          user={user as any}
         />
       ) : (
         <SimpleHeader 
@@ -125,17 +125,17 @@ export default function Home() {
                     data-testid="select-sort"
                   >
                     <option value="recommended">Önerilen Sıralama</option>
-                    <option value="newest">Yeniden {'>'} Eskiye</option>
-                    <option value="oldest">Eskiden {'>'} Yeniye</option>
-                    <option value="price_asc">Ucuzdan {'>'} Pahalıya</option>
-                    <option value="price_desc">Pahalıdan {'>'} Ucuza</option>
+                    <option value="newest">Yeniden &gt; Eskiye</option>
+                    <option value="oldest">Eskiden &gt; Yeniye</option>
+                    <option value="price_asc">Ucuzdan &gt; Pahalıya</option>
+                    <option value="price_desc">Pahalıdan &gt; Ucuza</option>
                     <option value="popular">En Çok Satılanlar</option>
                   </select>
                 </div>
               </div>
             </div>
 
-            <ProductGrid products={products} isLoading={productsLoading} user={user || undefined} />
+            <ProductGrid products={products} isLoading={productsLoading} user={user as any} />
           </div>
         </div>
       </main>
@@ -148,15 +148,32 @@ export default function Home() {
       )}
 
       {/* Admin Panel Access */}
-      {(user as any)?.role === 'admin' && (
-        <div className="fixed bottom-6 right-6 z-40">
-          <a href="/admin">
-            <button className="bg-accent text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors" data-testid="button-admin-panel">
-              <i className="fas fa-cog text-lg"></i>
-            </button>
-          </a>
+      {user && (user as any)?.role === 'admin' && (
+        <div className="fixed bottom-6 right-6 z-40 space-y-3">
+          <div className="flex flex-col space-y-2">
+            <a href="/sinav/admin">
+              <button className="bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors" data-testid="button-exam-admin-panel">
+                <i className="fas fa-graduation-cap text-lg"></i>
+              </button>
+            </a>
+            <a href="/admin">
+              <button className="bg-accent text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors" data-testid="button-admin-panel">
+                <i className="fas fa-cog text-lg"></i>
+              </button>
+            </a>
+          </div>
         </div>
       )}
+
+      {/* Exam System Access */}
+      <div className="fixed bottom-6 left-6 z-40">
+        <a href="/sinav">
+          <button className="bg-blue-600 text-white px-4 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors flex items-center" data-testid="button-exam-system">
+            <i className="fas fa-clipboard-list mr-2"></i>
+            <span className="font-medium">Sınav Sistemi</span>
+          </button>
+        </a>
+      </div>
 
 
       {/* Footer */}

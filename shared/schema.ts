@@ -171,10 +171,77 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   }),
 }));
 
+// EXAM SYSTEM TABLES
+export const exams = pgTable("exams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  subject: varchar("subject").notNull(), // "Matematik", "Türkçe", etc.
+  durationMinutes: integer("duration_minutes").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  answerKey: jsonb("answer_key").notNull(), // JSON: {"1": "A", "2": "B", ...}
+  createdByAdminId: varchar("created_by_admin_id").notNull().references(() => users.id),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const examBooklets = pgTable("exam_booklets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  examId: varchar("exam_id").notNull().references(() => exams.id, { onDelete: "cascade" }),
+  bookletCode: varchar("booklet_code").notNull(), // "A", "B", "C", "D"
+  questionOrder: jsonb("question_order").notNull(), // JSON: [1,15,3,20,5,18,...]
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const examSessions = pgTable("exam_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  examId: varchar("exam_id").notNull().references(() => exams.id),
+  studentId: varchar("student_id").notNull().references(() => users.id),
+  bookletType: varchar("booklet_type").notNull(), // "A", "B", "C", "D"
+  studentAnswers: jsonb("student_answers"), // JSON: {"1": "A", "2": "B", ...}
+  score: integer("score"),
+  percentage: decimal("percentage", { precision: 5, scale: 2 }),
+  status: varchar("status").default("started").notNull(), // "started", "completed", "abandoned"
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// EXAM RELATIONS
+export const examsRelations = relations(exams, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [exams.createdByAdminId],
+    references: [users.id],
+  }),
+  booklets: many(examBooklets),
+  sessions: many(examSessions),
+}));
+
+export const examBookletsRelations = relations(examBooklets, ({ one }) => ({
+  exam: one(exams, {
+    fields: [examBooklets.examId],
+    references: [exams.id],
+  }),
+}));
+
+export const examSessionsRelations = relations(examSessions, ({ one }) => ({
+  exam: one(exams, {
+    fields: [examSessions.examId],
+    references: [exams.id],
+  }),
+  student: one(users, {
+    fields: [examSessions.studentId],
+    references: [users.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ many }) => ({
   cartItems: many(cartItems),
   orders: many(orders),
   addresses: many(addresses),
+  createdExams: many(exams),
+  examSessions: many(examSessions),
 }));
 
 // Insert schemas
@@ -263,3 +330,59 @@ export type Order = typeof orders.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type ProductWithCategory = Product & { category: Category };
+
+// EXAM SYSTEM SCHEMAS AND TYPES
+export const insertExamSchema = createInsertSchema(exams).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertExamBookletSchema = createInsertSchema(examBooklets).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertExamSessionSchema = createInsertSchema(examSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const startExamSchema = z.object({
+  examId: z.string().min(1, "Sınav ID gerekli"),
+  bookletType: z.enum(["A", "B", "C", "D"], {
+    required_error: "Kitapçık türü seçiniz",
+  }),
+});
+
+export const submitAnswerSchema = z.object({
+  sessionId: z.string().min(1, "Oturum ID gerekli"),
+  questionNumber: z.number().min(1).max(200),
+  answer: z.enum(["A", "B", "C", "D", ""]).optional(),
+});
+
+export const submitExamSchema = z.object({
+  sessionId: z.string().min(1, "Oturum ID gerekli"),
+  studentAnswers: z.record(z.string(), z.enum(["A", "B", "C", "D", ""])),
+});
+
+// EXAM TYPES
+export type Exam = typeof exams.$inferSelect;
+export type InsertExam = z.infer<typeof insertExamSchema>;
+export type ExamBooklet = typeof examBooklets.$inferSelect;
+export type InsertExamBooklet = z.infer<typeof insertExamBookletSchema>;
+export type ExamSession = typeof examSessions.$inferSelect;
+export type InsertExamSession = z.infer<typeof insertExamSessionSchema>;
+export type StartExamInput = z.infer<typeof startExamSchema>;
+export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
+export type SubmitExamInput = z.infer<typeof submitExamSchema>;
+
+export type ExamWithBooklets = Exam & { booklets: ExamBooklet[] };
+export type ExamSessionWithExam = ExamSession & { exam: Exam };
+export type ExamResult = {
+  session: ExamSession;
+  exam: Exam;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  emptyAnswers: number;
+};

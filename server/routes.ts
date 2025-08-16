@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, isAdmin, hashPassword, comparePassword } from "./customAuth";
 import { z } from "zod";
-import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, insertAddressSchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
+import { insertProductSchema, insertCategorySchema, loginSchema, registerSchema, updateProfileSchema, insertAddressSchema, insertExamSchema, startExamSchema, submitExamSchema, submitAnswerSchema, type LoginInput, type RegisterInput, type UpdateProfileInput } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -534,6 +534,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // EXAM SYSTEM ROUTES
+  // Get all active exams
+  app.get('/api/exams', async (req, res) => {
+    try {
+      const exams = await storage.getExams();
+      res.json(exams);
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+      res.status(500).json({ message: "Sınavlar yüklenirken bir hata oluştu" });
+    }
+  });
+
+  // Get exam by ID
+  app.get('/api/exams/:id', async (req, res) => {
+    try {
+      const exam = await storage.getExam(req.params.id);
+      if (!exam) {
+        return res.status(404).json({ message: "Sınav bulunamadı" });
+      }
+      res.json(exam);
+    } catch (error) {
+      console.error("Error fetching exam:", error);
+      res.status(500).json({ message: "Sınav yüklenirken bir hata oluştu" });
+    }
+  });
+
+  // Create exam (admin only)
+  app.post('/api/exams', isAdmin, async (req, res) => {
+    try {
+      const examData = insertExamSchema.parse({
+        ...req.body,
+        createdByAdminId: req.session.userId,
+      });
+      const exam = await storage.createExam(examData);
+      res.status(201).json(exam);
+    } catch (error) {
+      console.error("Error creating exam:", error);
+      res.status(500).json({ message: "Sınav oluşturulurken bir hata oluştu" });
+    }
+  });
+
+  // Update exam (admin only)
+  app.put('/api/exams/:id', isAdmin, async (req, res) => {
+    try {
+      const examData = insertExamSchema.partial().parse(req.body);
+      const exam = await storage.updateExam(req.params.id, examData);
+      if (!exam) {
+        return res.status(404).json({ message: "Sınav bulunamadı" });
+      }
+      res.json(exam);
+    } catch (error) {
+      console.error("Error updating exam:", error);
+      res.status(500).json({ message: "Sınav güncellenirken bir hata oluştu" });
+    }
+  });
+
+  // Delete exam (admin only)
+  app.delete('/api/exams/:id', isAdmin, async (req, res) => {
+    try {
+      const success = await storage.deleteExam(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Sınav bulunamadı" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting exam:", error);
+      res.status(500).json({ message: "Sınav silinirken bir hata oluştu" });
+    }
+  });
+
+  // Start exam session
+  app.post('/api/exam-sessions/start', isAuthenticated, async (req, res) => {
+    try {
+      const { examId, bookletType } = startExamSchema.parse(req.body);
+      const session = await storage.startExamSession(examId, req.session.userId!, bookletType);
+      res.status(201).json(session);
+    } catch (error) {
+      console.error("Error starting exam session:", error);
+      res.status(500).json({ message: "Sınav oturumu başlatılırken bir hata oluştu" });
+    }
+  });
+
+  // Get exam session
+  app.get('/api/exam-sessions/:id', isAuthenticated, async (req, res) => {
+    try {
+      const session = await storage.getExamSession(req.params.id);
+      if (!session) {
+        return res.status(404).json({ message: "Sınav oturumu bulunamadı" });
+      }
+      
+      // Check if user owns this session or is admin
+      const user = req.session.user!;
+      if (session.studentId !== req.session.userId && (user as any)?.role !== 'admin') {
+        return res.status(403).json({ message: "Bu sınav oturumuna erişim izniniz yok" });
+      }
+      
+      res.json(session);
+    } catch (error) {
+      console.error("Error fetching exam session:", error);
+      res.status(500).json({ message: "Sınav oturumu yüklenirken bir hata oluştu" });
+    }
+  });
+
+  // Update exam session answers (save progress)
+  app.put('/api/exam-sessions/:id/answers', isAuthenticated, async (req, res) => {
+    try {
+      const { answers } = req.body;
+      const session = await storage.updateExamSession(req.params.id, answers);
+      if (!session) {
+        return res.status(404).json({ message: "Sınav oturumu bulunamadı" });
+      }
+      res.json(session);
+    } catch (error) {
+      console.error("Error updating exam session:", error);
+      res.status(500).json({ message: "Cevaplar kaydedilirken bir hata oluştu" });
+    }
+  });
+
+  // Submit exam (complete)
+  app.post('/api/exam-sessions/:id/submit', isAuthenticated, async (req, res) => {
+    try {
+      const { studentAnswers } = submitExamSchema.parse({
+        sessionId: req.params.id,
+        studentAnswers: req.body.studentAnswers,
+      });
+      
+      const result = await storage.submitExamSession(req.params.id, studentAnswers);
+      res.json(result);
+    } catch (error) {
+      console.error("Error submitting exam:", error);
+      res.status(500).json({ message: "Sınav teslim edilirken bir hata oluştu" });
+    }
+  });
+
+  // Get student's exam history
+  app.get('/api/my-exam-sessions', isAuthenticated, async (req, res) => {
+    try {
+      const sessions = await storage.getStudentExamSessions(req.session.userId!);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error fetching student exam sessions:", error);
+      res.status(500).json({ message: "Sınav geçmişi yüklenirken bir hata oluştu" });
+    }
+  });
+
   // Initialize default categories and products if none exist
   app.get('/api/init', async (req, res) => {
     try {
@@ -558,6 +703,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.createCategory(category);
         }
         message.push("Categories initialized");
+      }
+
+      // Add sample exams if none exist
+      const exams = await storage.getExams();
+      if (exams.length === 0 && categories.length > 0) {
+        const mathExam = await storage.createExam({
+          name: "LGS Matematik Deneme Sınavı",
+          description: "8. sınıf öğrencileri için matematik deneme sınavı. Temel matematik konularını kapsar.",
+          subject: "Matematik", 
+          durationMinutes: 80,
+          totalQuestions: 20,
+          answerKey: {
+            "1": "A", "2": "B", "3": "C", "4": "D", "5": "A",
+            "6": "B", "7": "C", "8": "D", "9": "A", "10": "B", 
+            "11": "C", "12": "D", "13": "A", "14": "B", "15": "C",
+            "16": "D", "17": "A", "18": "B", "19": "C", "20": "D"
+          },
+          createdByAdminId: "admin-demo-id",
+          isActive: true,
+        });
+
+        const turkishExam = await storage.createExam({
+          name: "YKS Türkçe Deneme Sınavı",
+          description: "12. sınıf öğrencileri için Türkçe deneme sınavı. Dil ve anlatım, edebiyat konularını içerir.",
+          subject: "Türkçe",
+          durationMinutes: 120,
+          totalQuestions: 40,
+          answerKey: Object.fromEntries(
+            Array.from({length: 40}, (_, i) => [(i + 1).toString(), ["A", "B", "C", "D"][i % 4]])
+          ),
+          createdByAdminId: "admin-demo-id", 
+          isActive: true,
+        });
+
+        // Create booklets for exams
+        if (mathExam) {
+          await storage.createExamBooklet({
+            examId: mathExam.id,
+            bookletCode: "A",
+            questionOrder: Array.from({length: 20}, (_, i) => i + 1),
+          });
+          await storage.createExamBooklet({
+            examId: mathExam.id,
+            bookletCode: "B", 
+            questionOrder: Array.from({length: 20}, (_, i) => i + 1).reverse(),
+          });
+        }
+
+        if (turkishExam) {
+          await storage.createExamBooklet({
+            examId: turkishExam.id,
+            bookletCode: "A",
+            questionOrder: Array.from({length: 40}, (_, i) => i + 1),
+          });
+          await storage.createExamBooklet({
+            examId: turkishExam.id,
+            bookletCode: "B",
+            questionOrder: Array.from({length: 40}, (_, i) => i + 1).reverse(),
+          });
+        }
+
+        message.push("Sample exams initialized");
       }
 
       // Add sample products if none exist - this runs independently
