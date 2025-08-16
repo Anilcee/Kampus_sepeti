@@ -20,7 +20,7 @@ export default function ExamSession() {
   
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [currentQuestion, setCurrentQuestion] = useState(1);
+  // Removed currentQuestion state as we show all questions at once
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -67,17 +67,19 @@ export default function ExamSession() {
 
   const saveAnswersMutation = useMutation({
     mutationFn: async (answers: Record<string, string>) => {
-      return await apiRequest("PUT", `/api/exam-sessions/${params?.sessionId}/answers`, {
+      const response = await apiRequest("PUT", `/api/exam-sessions/${params?.sessionId}/answers`, {
         answers,
       });
+      return await response.json();
     },
   });
 
   const submitExamMutation = useMutation({
     mutationFn: async (answers: Record<string, string>) => {
-      return await apiRequest("POST", `/api/exam-sessions/${params?.sessionId}/submit`, {
+      const response = await apiRequest("POST", `/api/exam-sessions/${params?.sessionId}/submit`, {
         studentAnswers: answers,
       });
+      return await response.json();
     },
     onSuccess: (result) => {
       if (intervalRef.current) {
@@ -163,12 +165,14 @@ export default function ExamSession() {
     <div className="min-h-screen bg-gray-50">
       {/* Header with Timer */}
       <header className="bg-white shadow-md border-b-2 border-green-600 sticky top-0 z-50">
-        <div className="bg-green-600 text-white py-2">
-          <div className="container mx-auto px-4 flex justify-between items-center text-sm">
-            <span className="font-medium">{session.exam.name} - Kitapçık {session.bookletType}</span>
-            <div className={`font-bold text-lg ${getTimeColor()}`}>
-              <i className="fas fa-clock mr-2"></i>
-              {formatTime(timeLeft)}
+        <div className="bg-green-600 text-white py-3">
+          <div className="container mx-auto px-4 text-center">
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-lg">{session.exam.name}</span>
+              <div className="text-white font-bold text-xl">
+                <i className="fas fa-clock mr-2"></i>
+                {formatTime(timeLeft)}
+              </div>
             </div>
           </div>
         </div>
@@ -176,7 +180,6 @@ export default function ExamSession() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Badge variant="outline">Soru {currentQuestion} / {session.exam.totalQuestions}</Badge>
               <Badge className="bg-green-100 text-green-800">Cevaplanmış: {answeredCount}</Badge>
               <Badge className="bg-red-100 text-red-800">Cevaplanmamış: {unansweredCount}</Badge>
             </div>
@@ -203,147 +206,114 @@ export default function ExamSession() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Question Navigation */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-32">
-              <CardHeader>
-                <CardTitle className="text-lg">Soru Navigasyonu</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-5 gap-2 mb-4">
-                  {Array.from({ length: session.exam.totalQuestions }, (_, i) => {
-                    const questionNum = i + 1;
-                    const isAnswered = answers[questionNum.toString()] && answers[questionNum.toString()].trim() !== "";
-                    const isCurrent = currentQuestion === questionNum;
-                    
-                    return (
-                      <Button
-                        key={questionNum}
-                        size="sm"
-                        variant={isCurrent ? "default" : "outline"}
-                        className={`aspect-square text-xs ${
-                          isAnswered 
-                            ? isCurrent 
-                              ? "bg-green-600 text-white" 
-                              : "bg-green-100 text-green-800 border-green-300"
-                            : isCurrent
-                              ? "bg-blue-600 text-white"
-                              : "bg-white text-gray-600"
-                        }`}
-                        onClick={() => setCurrentQuestion(questionNum)}
-                        data-testid={`button-question-${questionNum}`}
-                      >
-                        {questionNum}
-                      </Button>
-                    );
-                  })}
+      <main className="min-h-screen bg-gray-100 flex justify-center py-6">
+        <div className="w-full max-w-4xl">
+          {/* Optik Cevap Kağıdı */}
+          <div className="bg-white shadow-lg border border-gray-300 rounded-lg overflow-hidden">
+            {/* Form Header */}
+            <div className="bg-gray-50 border-b border-gray-300 p-4">
+              <div className="flex justify-between items-center mb-2">
+                <h1 className="text-lg font-bold text-gray-800">
+                  {session.exam.name.toUpperCase()}
+                </h1>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => saveAnswersMutation.mutate(answers)}
+                    disabled={saveAnswersMutation.isPending}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2"
+                    data-testid="button-save"
+                  >
+                    <i className="fas fa-save mr-2"></i>
+                    Kaydet
+                  </Button>
+                  <Button
+                    onClick={() => setShowSubmitDialog(true)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2"
+                    disabled={submitExamMutation.isPending}
+                    data-testid="button-finish"
+                  >
+                    <i className="fas fa-flag-checkered mr-2"></i>
+                    Bitir
+                  </Button>
                 </div>
-                
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div>
-                    <span>Cevaplanmış</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-blue-600 rounded"></div>
-                    <span>Geçerli Soru</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
-                    <span>Cevaplanmamış</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">Ders:</span> {session.exam.subject} | 
+                <span className="font-medium">Kitapçık:</span> {session.bookletType} | 
+                <span className="font-medium">Soru Sayısı:</span> {session.exam.totalQuestions}
+              </div>
+            </div>
 
-          {/* Current Question */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">
-                    <i className="fas fa-file-alt mr-2"></i>
-                    Optik Cevap Formu
-                  </CardTitle>
-                  <Badge className="bg-blue-100 text-blue-800">
-                    {session.exam.subject}
-                  </Badge>
-                </div>
-                <p className="text-sm text-gray-600 mt-2">
-                  Sınav kitapçığından soruları okuyun ve cevaplarınızı aşağıdaki formda işaretleyin
+            {/* Optik Form Content */}
+            <div className="p-6 bg-white">
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">
+                  {session.exam.subject.toUpperCase()}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Aşağıdaki sorular için doğru şıkkı tamamen karartınız
                 </p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center">
-                  <p className="text-blue-800 font-medium">
-                    <i className="fas fa-info-circle mr-2"></i>
-                    Soru {currentQuestion} için fiziksel sınav kağıdınızdan soruyu okuyun ve aşağıdan cevabınızı seçin.
-                  </p>
-                </div>
+              </div>
 
-                {/* Optik Cevap Formu */}
-                <div className="bg-white border-2 border-gray-300 rounded-lg p-6">
-                  <div className="text-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">SORU {currentQuestion}</h3>
-                    <p className="text-sm text-gray-600">Doğru cevabı işaretleyin</p>
-                  </div>
+              {/* Questions Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: session.exam.totalQuestions }, (_, i) => {
+                  const questionNum = (i + 1).toString();
+                  const selectedAnswer = answers[questionNum] || "";
                   
-                  <RadioGroup
-                    value={answers[currentQuestion.toString()] || ""}
-                    onValueChange={(value) => handleAnswerChange(currentQuestion.toString(), value)}
-                    className="flex justify-center space-x-8"
-                  >
-                    {["A", "B", "C", "D"].map((option) => (
-                      <div key={option} className="flex flex-col items-center space-y-2">
-                        <Label
-                          htmlFor={`${currentQuestion}-${option}`}
-                          className="cursor-pointer text-2xl font-bold text-gray-700"
-                        >
-                          {option}
-                        </Label>
-                        <RadioGroupItem 
-                          value={option} 
-                          id={`${currentQuestion}-${option}`} 
-                          className="w-8 h-8 text-green-600 border-2 border-gray-400" 
-                          data-testid={`option-${currentQuestion}-${option}`}
-                        />
+                  return (
+                    <div key={questionNum} className="border border-gray-200 rounded p-3 bg-gray-50">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-gray-800 text-lg">{questionNum}.</span>
+                        <div className="flex space-x-1">
+                          {["A", "B", "C", "D"].map((option) => {
+                            const isSelected = selectedAnswer === option;
+                            return (
+                              <div key={option} className="flex flex-col items-center">
+                                <span className="text-xs font-medium text-gray-600 mb-1">{option}</span>
+                                <button
+                                  onClick={() => handleAnswerChange(questionNum, option)}
+                                  className={`w-6 h-6 rounded-full border-2 transition-all ${
+                                    isSelected 
+                                      ? "bg-gray-800 border-gray-800" 
+                                      : "bg-white border-gray-400 hover:border-gray-600"
+                                  }`}
+                                  data-testid={`bubble-${questionNum}-${option}`}
+                                >
+                                  {isSelected && <div className="w-full h-full rounded-full bg-gray-800"></div>}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    ))}
-                  </RadioGroup>
-                  
-                  <div className="mt-4 text-center">
-                    <p className="text-xs text-gray-500">
-                      Seçiminizi yapmak için yukarıdaki dairelerden birini işaretleyin
-                    </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Form Footer */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                  <div className="text-center">
+                    <div className="font-medium text-green-600 text-lg">{answeredCount}</div>
+                    <div>Cevaplanmış</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-red-600 text-lg">{unansweredCount}</div>
+                    <div>Cevaplanmamış</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-medium text-blue-600 text-lg">{session.exam.totalQuestions}</div>
+                    <div>Toplam Soru</div>
+                  </div>
+                  <div className="text-center">
+                    <div className={`font-medium text-lg ${getTimeColor()}`}>{formatTime(timeLeft)}</div>
+                    <div>Kalan Süre</div>
                   </div>
                 </div>
-
-                {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentQuestion(Math.max(1, currentQuestion - 1))}
-                    disabled={currentQuestion === 1}
-                    data-testid="button-prev-question"
-                  >
-                    <i className="fas fa-chevron-left mr-2"></i>
-                    Önceki Soru
-                  </Button>
-                  
-                  <Button
-                    onClick={() => setCurrentQuestion(Math.min(session.exam.totalQuestions, currentQuestion + 1))}
-                    disabled={currentQuestion === session.exam.totalQuestions}
-                    data-testid="button-next-question"
-                  >
-                    Sonraki Soru
-                    <i className="fas fa-chevron-right ml-2"></i>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </main>
