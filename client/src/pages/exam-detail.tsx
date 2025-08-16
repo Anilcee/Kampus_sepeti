@@ -32,7 +32,7 @@ export default function ExamDetail() {
         examId,
         bookletType,
       });
-      return response;
+      return await response.json();
     },
     onSuccess: (session: ExamSession) => {
       toast({
