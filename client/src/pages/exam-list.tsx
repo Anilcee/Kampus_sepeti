@@ -112,10 +112,23 @@ export default function ExamList() {
           </div>
         ) : exams.length === 0 ? (
           <div className="text-center py-12">
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <i className="fas fa-clipboard-list text-4xl text-gray-400 mb-4"></i>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Henüz Sınav Yok</h3>
-              <p className="text-gray-600">Şu anda aktif sınav bulunmamaktadır.</p>
+            <div className="bg-white rounded-lg shadow-md p-8 max-w-lg mx-auto">
+              <i className="fas fa-shopping-cart text-4xl text-blue-400 mb-4"></i>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Henüz Deneme Paketi Satın Almadınız</h3>
+              <p className="text-gray-600 mb-6">
+                Sınavlara katılabilmek için önce deneme paketlerinden birini satın almanız gerekiyor.
+              </p>
+              <div className="space-y-3">
+                <Link href="/">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2">
+                    <i className="fas fa-shopping-bag mr-2"></i>
+                    Deneme Paketlerine Göz At
+                  </Button>
+                </Link>
+                <div className="text-sm text-gray-500">
+                  Paket satın aldıktan sonra sınavlar burada görünecektir.
+                </div>
+              </div>
             </div>
           </div>
         ) : (

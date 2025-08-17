@@ -139,6 +139,7 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   }),
   cartItems: many(cartItems),
   orderItems: many(orderItems),
+  productExams: many(productExams),
 }));
 
 export const cartItemsRelations = relations(cartItems, ({ one }) => ({
@@ -170,6 +171,24 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [products.id],
   }),
 }));
+
+// PRODUCT-EXAM RELATIONSHIP TABLES
+export const productExams = pgTable("product_exams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  productId: varchar("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  examId: varchar("exam_id").notNull().references(() => exams.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userExamAccess = pgTable("user_exam_access", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  examId: varchar("exam_id").notNull().references(() => exams.id, { onDelete: "cascade" }),
+  orderId: varchar("order_id").references(() => orders.id, { onDelete: "cascade" }), // Hangi siparişten geldiği
+  accessGrantedAt: timestamp("access_granted_at").defaultNow(),
+  expiresAt: timestamp("expires_at"), // Opsiyonel: erişim süresi sınırı
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 // EXAM SYSTEM TABLES
 export const exams = pgTable("exams", {
@@ -220,6 +239,8 @@ export const examsRelations = relations(exams, ({ one, many }) => ({
   }),
   booklets: many(examBooklets),
   sessions: many(examSessions),
+  productExams: many(productExams),
+  userAccess: many(userExamAccess),
 }));
 
 export const examBookletsRelations = relations(examBooklets, ({ one }) => ({
@@ -240,13 +261,45 @@ export const examSessionsRelations = relations(examSessions, ({ one }) => ({
   }),
 }));
 
+// Product-Exam Relations
+export const productExamsRelations = relations(productExams, ({ one }) => ({
+  product: one(products, {
+    fields: [productExams.productId],
+    references: [products.id],
+  }),
+  exam: one(exams, {
+    fields: [productExams.examId],
+    references: [exams.id],
+  }),
+}));
+
+export const userExamAccessRelations = relations(userExamAccess, ({ one }) => ({
+  user: one(users, {
+    fields: [userExamAccess.userId],
+    references: [users.id],
+  }),
+  exam: one(exams, {
+    fields: [userExamAccess.examId],
+    references: [exams.id],
+  }),
+  order: one(orders, {
+    fields: [userExamAccess.orderId],
+    references: [orders.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ many }) => ({
   cartItems: many(cartItems),
   orders: many(orders),
   addresses: many(addresses),
   createdExams: many(exams),
   examSessions: many(examSessions),
+  examAccess: many(userExamAccess),
 }));
+
+
+
+
 
 // Insert schemas
 export const insertCategorySchema = createInsertSchema(categories).omit({
@@ -355,6 +408,16 @@ export const insertExamBookletSchema = createInsertSchema(examBooklets).omit({
   createdAt: true,
 });
 
+export const insertProductExamSchema = createInsertSchema(productExams).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserExamAccessSchema = createInsertSchema(userExamAccess).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertExamSessionSchema = createInsertSchema(examSessions).omit({
   id: true,
   createdAt: true,
@@ -390,8 +453,16 @@ export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
 export type SubmitExamInput = z.infer<typeof submitExamSchema>;
 export type UploadExcelAnswerKeyInput = z.infer<typeof uploadExcelAnswerKeySchema>;
 
+// Product-Exam types
+export type InsertProductExam = z.infer<typeof insertProductExamSchema>;
+export type ProductExam = typeof productExams.$inferSelect;
+export type InsertUserExamAccess = z.infer<typeof insertUserExamAccessSchema>;
+export type UserExamAccess = typeof userExamAccess.$inferSelect;
+
 export type ExamWithBooklets = Exam & { booklets: ExamBooklet[] };
 export type ExamSessionWithExam = ExamSession & { exam: Exam };
+export type ProductWithExams = Product & { productExams: (ProductExam & { exam: Exam })[] };
+export type UserWithExamAccess = User & { examAccess: (UserExamAccess & { exam: Exam })[] };
 export type ExamResult = {
   session: ExamSession;
   exam: Exam;

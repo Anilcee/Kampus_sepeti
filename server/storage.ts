@@ -9,6 +9,8 @@ import {
   exams,
   examBooklets,
   examSessions,
+  productExams,
+  userExamAccess,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -101,6 +103,16 @@ export interface IStorage {
   createExamBooklet(booklet: InsertExamBooklet): Promise<ExamBooklet>;
   createOrUpdateExamBooklet(booklet: InsertExamBooklet): Promise<ExamBooklet>;
   getExamBooklets(examId: string): Promise<ExamBooklet[]>;
+  
+  // Product-Exam relationship operations
+  addProductExam(data: { productId: string; examId: string }): Promise<void>;
+  removeProductExams(productId: string): Promise<void>;
+  getProductExams(productId: string): Promise<ExamWithBooklets[]>;
+  
+  // User exam access operations
+  grantExamAccess(userId: string, examId: string, orderId?: string): Promise<void>;
+  getUserExamAccess(userId: string): Promise<ExamWithBooklets[]>;
+  hasExamAccess(userId: string, examId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -822,6 +834,93 @@ export class DatabaseStorage implements IStorage {
       .from(examBooklets)
       .where(eq(examBooklets.examId, examId))
       .orderBy(examBooklets.bookletCode);
+  }
+
+  // Product-Exam relationship operations
+  async addProductExam(data: { productId: string; examId: string }): Promise<void> {
+    await db.insert(productExams).values(data);
+  }
+
+  async removeProductExams(productId: string): Promise<void> {
+    await db.delete(productExams).where(eq(productExams.productId, productId));
+  }
+
+  async getProductExams(productId: string): Promise<ExamWithBooklets[]> {
+    const result = await db
+      .select({
+        exam: exams,
+        booklets: examBooklets,
+      })
+      .from(productExams)
+      .innerJoin(exams, eq(productExams.examId, exams.id))
+      .leftJoin(examBooklets, eq(exams.id, examBooklets.examId))
+      .where(eq(productExams.productId, productId));
+
+    // Group booklets by exam
+    const examMap = new Map<string, ExamWithBooklets>();
+    
+    for (const row of result) {
+      if (!examMap.has(row.exam.id)) {
+        examMap.set(row.exam.id, { ...row.exam, booklets: [] });
+      }
+      
+      if (row.booklets) {
+        examMap.get(row.exam.id)!.booklets.push(row.booklets);
+      }
+    }
+
+    return Array.from(examMap.values());
+  }
+
+  // User exam access operations
+  async grantExamAccess(userId: string, examId: string, orderId?: string): Promise<void> {
+    await db.insert(userExamAccess).values({
+      userId,
+      examId,
+      orderId,
+    });
+  }
+
+  async getUserExamAccess(userId: string): Promise<ExamWithBooklets[]> {
+    const result = await db
+      .select({
+        exam: exams,
+        booklets: examBooklets,
+      })
+      .from(userExamAccess)
+      .innerJoin(exams, eq(userExamAccess.examId, exams.id))
+      .leftJoin(examBooklets, eq(exams.id, examBooklets.examId))
+      .where(eq(userExamAccess.userId, userId));
+
+    // Group booklets by exam
+    const examMap = new Map<string, ExamWithBooklets>();
+    
+    for (const row of result) {
+      if (!examMap.has(row.exam.id)) {
+        examMap.set(row.exam.id, { ...row.exam, booklets: [] });
+      }
+      
+      if (row.booklets) {
+        examMap.get(row.exam.id)!.booklets.push(row.booklets);
+      }
+    }
+
+    return Array.from(examMap.values());
+  }
+
+  async hasExamAccess(userId: string, examId: string): Promise<boolean> {
+    const [access] = await db
+      .select()
+      .from(userExamAccess)
+      .where(
+        and(
+          eq(userExamAccess.userId, userId),
+          eq(userExamAccess.examId, examId)
+        )
+      )
+      .limit(1);
+    
+    return !!access;
   }
 }
 

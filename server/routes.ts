@@ -351,6 +351,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Product-Exam relationship routes
+  app.post('/api/products/exams', isAdmin, async (req, res) => {
+    try {
+      const { productId, examIds } = req.body;
+      
+      if (!productId || !Array.isArray(examIds)) {
+        return res.status(400).json({ message: "Product ID ve exam IDs gerekli" });
+      }
+
+      // Remove existing relationships for this product
+      await storage.removeProductExams(productId);
+      
+      // Add new relationships
+      for (const examId of examIds) {
+        await storage.addProductExam({ productId, examId });
+      }
+      
+      res.json({ message: "Ürün-deneme ilişkileri güncellendi", count: examIds.length });
+    } catch (error) {
+      console.error("Error updating product-exam relationships:", error);
+      res.status(500).json({ message: "Ürün-deneme ilişkileri güncellenirken hata oluştu" });
+    }
+  });
+
+  app.get('/api/products/:id/exams', async (req, res) => {
+    try {
+      const productExams = await storage.getProductExams(req.params.id);
+      res.json(productExams);
+    } catch (error) {
+      console.error("Error fetching product exams:", error);
+      res.status(500).json({ message: "Ürün denemeleri yüklenirken hata oluştu" });
+    }
+  });
+
   // Cart routes
   app.get('/api/cart', isAuthenticated, async (req, res) => {
     try {
@@ -539,12 +573,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/orders/:id/status', isAdmin, async (req, res) => {
     try {
-
       const { status } = req.body;
       const order = await storage.updateOrderStatus(req.params.id, status);
       
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // If order is confirmed, grant exam access to user
+      if (status === 'confirmed') {
+        try {
+          const orderDetails = await storage.getOrderDetails(req.params.id);
+          if (orderDetails) {
+            // For each product in the order, grant access to associated exams
+            for (const item of orderDetails.items) {
+              const productExams = await storage.getProductExams(item.productId);
+              
+              for (const exam of productExams) {
+                // Check if user already has access to prevent duplicates
+                const hasAccess = await storage.hasExamAccess(orderDetails.order.userId, exam.id);
+                if (!hasAccess) {
+                  await storage.grantExamAccess(orderDetails.order.userId, exam.id, req.params.id);
+                }
+              }
+            }
+            console.log(`Granted exam access for order ${req.params.id} to user ${orderDetails.order.userId}`);
+          }
+        } catch (accessError) {
+          console.error("Error granting exam access:", accessError);
+          // Don't fail the order status update if exam access fails
+        }
       }
       
       res.json(order);
@@ -555,24 +613,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // EXAM SYSTEM ROUTES
-  // Get all active exams
+  // Get all active exams (admin sees all, students see only accessible ones)
   app.get('/api/exams', async (req, res) => {
     try {
-      const exams = await storage.getExams();
-      res.json(exams);
+      const isAdmin = req.session.userId && (await storage.getUser(req.session.userId))?.role === 'admin';
+      
+      if (isAdmin) {
+        // Admin sees all exams
+        const exams = await storage.getExams();
+        res.json(exams);
+      } else if (req.session.userId) {
+        // Student sees only accessible exams
+        const exams = await storage.getUserExamAccess(req.session.userId);
+        res.json(exams);
+      } else {
+        // Not authenticated - no exams
+        res.json([]);
+      }
     } catch (error) {
       console.error("Error fetching exams:", error);
       res.status(500).json({ message: "Sınavlar yüklenirken bir hata oluştu" });
     }
   });
 
-  // Get exam by ID
+  // Get exam by ID (check access for students)
   app.get('/api/exams/:id', async (req, res) => {
     try {
       const exam = await storage.getExam(req.params.id);
       if (!exam) {
         return res.status(404).json({ message: "Sınav bulunamadı" });
       }
+
+      // Check access for non-admin users
+      if (req.session.userId) {
+        const user = await storage.getUser(req.session.userId);
+        const isAdmin = user?.role === 'admin';
+        
+        if (!isAdmin) {
+          const hasAccess = await storage.hasExamAccess(req.session.userId, req.params.id);
+          if (!hasAccess) {
+            return res.status(403).json({ message: "Bu sınava erişim izniniz yok" });
+          }
+        }
+      }
+      
       res.json(exam);
     } catch (error) {
       console.error("Error fetching exam:", error);
@@ -628,6 +712,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/exam-sessions/start', isAuthenticated, async (req, res) => {
     try {
       const { examId, bookletType } = startExamSchema.parse(req.body);
+      
+      // Check if user has access to this exam (unless admin)
+      const user = await storage.getUser(req.session.userId!);
+      const isAdmin = user?.role === 'admin';
+      
+      if (!isAdmin) {
+        const hasAccess = await storage.hasExamAccess(req.session.userId!, examId);
+        if (!hasAccess) {
+          return res.status(403).json({ message: "Bu sınava erişim izniniz yok. Önce ilgili paketi satın alınız." });
+        }
+      }
+      
       const session = await storage.startExamSession(examId, req.session.userId!, bookletType);
       res.status(201).json(session);
     } catch (error) {

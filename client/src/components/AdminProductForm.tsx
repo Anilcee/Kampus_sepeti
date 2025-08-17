@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
@@ -10,8 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { insertProductSchema } from "@shared/schema";
-import type { Category, InsertProduct } from "@shared/schema";
+import type { Category, InsertProduct, ExamWithBooklets } from "@shared/schema";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -30,6 +31,7 @@ const formSchema = z.object({
   hasCoaching: z.boolean().default(false),
   discountPercentage: z.number().int().min(0).max(100).default(0),
   slug: z.string().optional(),
+  selectedExams: z.array(z.string()).default([]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -43,6 +45,27 @@ interface AdminProductFormProps {
 export default function AdminProductForm({ categories, editProduct, onCancel }: AdminProductFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedExams, setSelectedExams] = useState<string[]>([]);
+
+  // Fetch available exams
+  const { data: exams = [] } = useQuery<ExamWithBooklets[]>({
+    queryKey: ["/api/exams"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/exams");
+      return response.json();
+    },
+  });
+
+  // Fetch product's current exams when editing
+  const { data: productExams = [] } = useQuery<ExamWithBooklets[]>({
+    queryKey: ["/api/products", editProduct?.id, "exams"],
+    queryFn: async () => {
+      if (!editProduct?.id) return [];
+      const response = await apiRequest("GET", `/api/products/${editProduct.id}/exams`);
+      return response.json();
+    },
+    enabled: !!editProduct?.id,
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -57,6 +80,7 @@ export default function AdminProductForm({ categories, editProduct, onCancel }: 
       stock: editProduct?.stock || 0,
       hasCoaching: editProduct?.hasCoaching || false,
       discountPercentage: editProduct?.discountPercentage || 0,
+      selectedExams: [],
     },
   });
 
@@ -74,9 +98,10 @@ export default function AdminProductForm({ categories, editProduct, onCancel }: 
         stock: editProduct.stock || 0,
         hasCoaching: editProduct.hasCoaching || false,
         discountPercentage: editProduct.discountPercentage || 0,
+        selectedExams: productExams.map(exam => exam.id), // Load product's current exams
       });
     }
-  }, [editProduct, form]);
+  }, [editProduct, form, productExams]);
 
   const saveProductMutation = useMutation({
     mutationFn: async (data: FormData) => {
@@ -116,13 +141,24 @@ export default function AdminProductForm({ categories, editProduct, onCancel }: 
         slug,
       };
 
+      let productId: string;
+      
       if (editProduct) {
         // Update existing product
         await apiRequest("PUT", `/api/products/${editProduct.id}`, productData);
+        productId = editProduct.id;
       } else {
         // Create new product
-        await apiRequest("POST", "/api/products", productData);
+        const response = await apiRequest("POST", "/api/products", productData);
+        const result = await response.json();
+        productId = result.id;
       }
+
+      // Update product-exam relationships
+      await apiRequest("POST", "/api/products/exams", {
+        productId,
+        examIds: data.selectedExams,
+      });
     },
     onSuccess: () => {
       toast({
@@ -132,6 +168,9 @@ export default function AdminProductForm({ categories, editProduct, onCancel }: 
           : "Yeni deneme kitabı başarıyla eklendi.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/products"] });
+      if (editProduct?.id) {
+        queryClient.invalidateQueries({ queryKey: ["/api/products", editProduct.id, "exams"] });
+      }
       if (!editProduct) {
         form.reset();
       }
@@ -344,6 +383,71 @@ export default function AdminProductForm({ categories, editProduct, onCancel }: 
             )}
           />
         </div>
+
+        {/* Exam Selection */}
+        <FormField
+          control={form.control}
+          name="selectedExams"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pakete Dahil Denemeler</FormLabel>
+              <FormControl>
+                <div className="border rounded-lg p-4 max-h-60 overflow-y-auto">
+                  {exams.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">Henüz deneme oluşturulmamış</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {exams.map((exam) => (
+                        <div key={exam.id} className="flex items-center space-x-3">
+                          <Checkbox
+                            checked={field.value?.includes(exam.id) || false}
+                            onCheckedChange={(checked) => {
+                              const currentValue = field.value || [];
+                              if (checked) {
+                                field.onChange([...currentValue, exam.id]);
+                              } else {
+                                field.onChange(currentValue.filter(id => id !== exam.id));
+                              }
+                            }}
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium">{exam.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {exam.subject} • {exam.totalQuestions} soru • {exam.durationMinutes} dk
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              <div className="flex items-center space-x-2 mt-2">
+                <span className="text-sm text-gray-600">
+                  Seçilen: {field.value?.length || 0} deneme
+                </span>
+                {field.value && field.value.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {field.value.slice(0, 3).map(examId => {
+                      const exam = exams.find(e => e.id === examId);
+                      return exam ? (
+                        <Badge key={examId} variant="secondary" className="text-xs">
+                          {exam.name.length > 20 ? exam.name.slice(0, 20) + '...' : exam.name}
+                        </Badge>
+                      ) : null;
+                    })}
+                    {field.value.length > 3 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{field.value.length - 3} tane daha
+                      </Badge>
+                    )}
+                  </div>
+                )}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end space-x-3">
           {editProduct && onCancel && (
