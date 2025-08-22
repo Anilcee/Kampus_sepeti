@@ -23,7 +23,7 @@ export default function SimpleHeader({ searchQuery, onSearchChange, onCartClick 
           <div className="flex items-center space-x-4">
             <a href="/" className="flex items-center hover:opacity-80 transition-opacity" data-testid="link-logo">
               <img 
-                src="/logo.jpg"
+                src="/logo.png"
                 alt="Kampüs Sepeti" 
                 className="h-12 w-auto object-contain"
                 data-testid="img-logo"

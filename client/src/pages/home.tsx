@@ -230,7 +230,7 @@ export default function Home() {
           </div>
           <hr className="border-gray-700 my-8" />
           <div className="text-center text-sm text-gray-400">
-            <p>&copy; 2024 Kampüs Sepeti. Tüm hakları saklıdır.</p>
+            <p>&copy; 2025 Kampüs Sepeti. Tüm hakları saklıdır.</p>
           </div>
         </div>
       </footer>

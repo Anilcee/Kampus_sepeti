@@ -50,11 +50,12 @@ export default function Register() {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <div className="flex justify-center mb-6">
-            <div className="bg-primary text-white px-6 py-3 rounded-lg font-bold text-2xl">
-              <i className="fas fa-graduation-cap mr-2"></i>
-              Kampüs Sepeti
-            </div>
+           <div className="flex justify-center mb-6">
+            <img 
+              src="/logo.png" 
+              alt="Kampüs Sepeti" 
+              className="h-36 w-auto object-contain"
+            />
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Hesap oluşturun</h2>
           <p className="mt-2 text-gray-600">

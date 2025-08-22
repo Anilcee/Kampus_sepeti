@@ -34,7 +34,7 @@ export default function Header({ searchQuery, onSearchChange, onCartClick, user 
           <div className="flex items-center space-x-4">
             <a href="/" className="flex items-center hover:opacity-80 transition-opacity" data-testid="link-logo">
               <img 
-                src="/logo.jpg" 
+                src="/logo.png" 
                 alt="Kampüs Sepeti" 
                 className="h-18 w-auto"
                 data-testid="img-logo"
